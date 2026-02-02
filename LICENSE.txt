@@ -1,0 +1,15 @@
+Copyright (c) 2026 [Dein Name]
+
+All rights reserved.
+
+This software and its source code are the exclusive property of the author.
+
+Permission is NOT granted to any person or entity to:
+- use this software or its source code for commercial or non-commercial purposes
+- copy, modify, merge, publish, distribute, sublicense, or sell copies
+- deploy this software or derivative works publicly or privately
+
+The source code is publicly visible solely for deployment and review purposes.
+
+Any use, reproduction, or distribution without explicit written permission
+from the author is strictly prohibited.
