@@ -16,4 +16,4 @@ All rights reserved.
 The source code is publicly visible for deployment reasons only.
 It may not be copied, modified, or redistributed without explicit permission.
 
-© 2026 [Dein Name]
+© 2026 Holger Pfahl 
