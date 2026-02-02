@@ -107,32 +107,11 @@
             margin-top: -2px;
         }
 
-        .mode-toggle {
+        .button-group {
             display: flex;
-            gap: 8px;
-            margin-bottom: 40px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 6px;
-        }
-
-        .mode-btn {
-            flex: 1;
-            padding: 14px;
-            background: transparent;
-            color: var(--text-secondary);
-            border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .mode-btn.active {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            box-shadow: 0 2px 8px var(--shadow);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 12px;
         }
 
         .add-section {
@@ -183,20 +162,19 @@
         }
 
         .upload-button {
-            width: auto;
-            max-width: 180px;
-            margin: 12px auto 0;
-            padding: 10px 24px;
+            width: 150px;
+            padding: 9px 22px;
             background: var(--bg-secondary);
             color: var(--text-primary);
             border: 2px solid var(--border);
             border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.765rem;
+            font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
             transition: all 0.2s;
         }
 
@@ -214,6 +192,44 @@
         .upload-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .manual-button {
+            width: 150px;
+            padding: 9px 22px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.765rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .manual-button:hover {
+            background: var(--bg-card);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .manual-button:active {
+            transform: translateY(0);
+        }
+
+        .button-icon {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
         }
 
         .camera-icon {
@@ -996,11 +1012,6 @@
             </div>
             <div class="header-subtitle">precision meets ritual</div>
         </header>
-        
-        <div class="mode-toggle">
-            <button class="mode-btn active" onclick="switchMode('camera')">📷 Photo</button>
-            <button class="mode-btn" onclick="switchMode('manual')">✍️ Manual</button>
-        </div>
 
         <div class="add-section">
             <div class="camera-section active">
@@ -1015,9 +1026,23 @@
                     <span>Coffee Shot</span>
                 </button>
                 
-                <button class="upload-button" id="uploadBtn">
-                    Upload Image
-                </button>
+                <div class="button-group">
+                    <button class="upload-button" id="uploadBtn">
+                        <svg class="button-icon" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        Upload Image
+                    </button>
+                    <button class="manual-button" id="manualBtn" onclick="toggleManual()">
+                        <svg class="button-icon" viewBox="0 0 24 24">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                            <path d="M13.5 6.5l4 4"></path>
+                        </svg>
+                        Manual
+                    </button>
+                </div>
                 
                 <img id="imagePreview" alt="Preview" style="display: none; margin-top: 16px; width: 100%; border-radius: 12px;">
                 <div id="loadingMessage" class="loading hidden">
@@ -1141,18 +1166,9 @@
             localStorage.setItem('theme', theme);
         }
 
-        function switchMode(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if (mode === 'camera') {
-                document.querySelector('.camera-section').classList.remove('hidden');
-                document.querySelector('.manual-section').classList.add('hidden');
-            } else {
-                document.querySelector('.camera-section').classList.add('hidden');
-                document.querySelector('.manual-section').classList.remove('hidden');
-            }
+        function toggleManual() {
+            const manualSection = document.querySelector('.manual-section');
+            manualSection.classList.toggle('hidden');
         }
 
         function switchGrinder(event, index, grinder) {
