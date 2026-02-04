@@ -1436,7 +1436,7 @@
         
         <div id="activationStatus" style="display: none; padding: 16px; border-radius: 8px; margin-top: 16px;"></div>
         
-        <button onclick="activateDevice()">Activate Device</button>
+        <button onclick="activateDevice().catch(err => console.error(err))">Activate Device</button>
         
         <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
             <div class="form-group">
