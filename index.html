@@ -2743,7 +2743,19 @@
     }, 1000);
 }
 
-    async function activateDevice() {
+    function activateDevice() {
+    // Wrapper der die async Function aufruft
+    activateDeviceAsync().catch(err => {
+        const statusDiv = document.getElementById('activationStatus');
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(220, 53, 69, 0.1)';
+        statusDiv.style.border = '1px solid rgba(220, 53, 69, 0.3)';
+        statusDiv.style.color = '#ff6b7a';
+        statusDiv.innerHTML = '❌ ' + err.message;
+    });
+}
+
+async function activateDeviceAsync() {
     const accessCode = document.getElementById('accessCodeInput').value.trim();
     const statusDiv = document.getElementById('activationStatus');
     
@@ -2756,34 +2768,38 @@
         return;
     }
     
-    // validateAndSaveToken wird von backend-sync.js bereitgestellt
-    const result = await validateAndSaveToken(accessCode);
-    
-    if (result.success) {
-        statusDiv.style.display = 'block';
-        statusDiv.style.background = 'rgba(40, 167, 69, 0.1)';
-        statusDiv.style.border = '1px solid rgba(40, 167, 69, 0.3)';
-        statusDiv.style.color = '#5fda7d';
-        statusDiv.innerHTML = '✅ Success! Device linked.<br>You can now use all features.';
+    try {
+        // validateAndSaveToken wird von backend-sync.js bereitgestellt
+        const result = await validateAndSaveToken(accessCode);
         
-        // Backend-Sync neu initialisieren
-        if (typeof BACKEND_CONFIG !== 'undefined') {
-            BACKEND_CONFIG.syncEnabled = true;
+        if (result.success) {
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = 'rgba(40, 167, 69, 0.1)';
+            statusDiv.style.border = '1px solid rgba(40, 167, 69, 0.3)';
+            statusDiv.style.color = '#5fda7d';
+            statusDiv.innerHTML = '✅ Success! Device linked.<br>You can now use all features.';
+            
+            // Backend-Sync neu initialisieren
+            if (typeof BACKEND_CONFIG !== 'undefined') {
+                BACKEND_CONFIG.syncEnabled = true;
+            }
+            if (typeof initBackendSync === 'function') {
+                await initBackendSync();
+            }
+            
+            setTimeout(() => {
+                closeSettings();
+                location.reload();
+            }, 2000);
+        } else {
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = 'rgba(220, 53, 69, 0.1)';
+            statusDiv.style.border = '1px solid rgba(220, 53, 69, 0.3)';
+            statusDiv.style.color = '#ff6b7a';
+            statusDiv.innerHTML = '❌ ' + (result.error || 'Invalid access code');
         }
-        if (typeof initBackendSync === 'function') {
-            await initBackendSync();
-        }
-        
-        setTimeout(() => {
-            closeSettings();
-            location.reload();
-        }, 2000);
-    } else {
-        statusDiv.style.display = 'block';
-        statusDiv.style.background = 'rgba(220, 53, 69, 0.1)';
-        statusDiv.style.border = '1px solid rgba(220, 53, 69, 0.3)';
-        statusDiv.style.color = '#ff6b7a';
-        statusDiv.innerHTML = '❌ ' + (result.error || 'Invalid access code');
+    } catch (error) {
+        throw error; // Wird vom wrapper gefangen
     }
 }
         
