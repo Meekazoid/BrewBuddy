@@ -2945,6 +2945,28 @@ function showActivationError(message) {
                 saveBackendUrl();
             };
         }
+
+        // Theme Toggle Button
+        const themeBtnElement = document.getElementById('themeToggleBtn');
+        if (themeBtnElement) {
+            themeBtnElement.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🌙 Theme clicked');
+                toggleTheme();
+            };
+        }
+
+        // Water Button
+        const waterBtnElement = document.getElementById('waterControlBtn');
+        if (waterBtnElement) {
+            waterBtnElement.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('💧 Water clicked');
+                openWaterModal();
+            };
+        }
     
     </script>
     <script src="backend-sync.js"></script>
