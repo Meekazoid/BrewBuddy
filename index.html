@@ -2613,6 +2613,11 @@
                 localStorage.setItem('coffees', JSON.stringify(coffees));
                 renderCoffees();
                 
+                // Sync zum Backend
+                if (typeof window.backendSync !== 'undefined' && window.backendSync.syncCoffeesToBackend) {
+                    await window.backendSync.syncCoffeesToBackend(coffees);
+                }
+                
                 showMessage('success', '✓ Coffee added successfully!');
                 
                 preview.style.display = 'none';
@@ -2644,7 +2649,7 @@
             e.target.value = '';
         });
 
-        function saveCoffeeManual() {
+        async function saveCoffeeManual() {
             const name = document.getElementById('name').value.trim();
             const origin = document.getElementById('origin').value.trim();
             const process = document.getElementById('process').value;
@@ -2671,6 +2676,11 @@
             
             coffees.unshift(coffee);
             localStorage.setItem('coffees', JSON.stringify(coffees));
+            
+            // Sync zum Backend
+            if (typeof window.backendSync !== 'undefined' && window.backendSync.syncCoffeesToBackend) {
+                await window.backendSync.syncCoffeesToBackend(coffees);
+            }
             
             document.getElementById('name').value = '';
             document.getElementById('origin').value = '';
