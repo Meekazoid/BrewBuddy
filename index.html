@@ -2796,7 +2796,16 @@ async function activateDevice() {
         const getOrCreateDeviceId = () => {
             let deviceId = localStorage.getItem('deviceId');
             if (!deviceId) {
-                deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
+                // Gleicher Fingerprint wie in backend-sync.js
+                const fingerprint = [
+                    navigator.userAgent,
+                    navigator.language,
+                    screen.width + 'x' + screen.height,
+                    new Date().getTimezoneOffset(),
+                    navigator.hardwareConcurrency || 'unknown'
+                ].join('|');
+                
+                deviceId = 'device-' + btoa(fingerprint).substring(0, 32).replace(/[^a-zA-Z0-9]/g, '');
                 localStorage.setItem('deviceId', deviceId);
             }
             return deviceId;
