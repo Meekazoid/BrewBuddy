@@ -1,267 +1,238 @@
 // ==========================================
-// BREWBUDDY BACKEND SYNC MODULE V3
-// Mit Token-System + Fehlertoleranz
+// BACKEND-SYNC MODULE
+// Handles token validation and syncing
 // ==========================================
 
-const BACKEND_CONFIG = {
-    url: 'https://brew-buddy-backend-production.up.railway.app',
-    syncEnabled: true,
-    offlineFirst: true
-};
+const BACKEND_URL = 'https://brew-buddy-backend-production.up.railway.app';
+
+// ==========================================
+// DEVICE ID GENERATION
+// ==========================================
 
 function getOrCreateDeviceId() {
     let deviceId = localStorage.getItem('deviceId');
-    
     if (!deviceId) {
-        const fingerprint = [
-            navigator.userAgent,
-            navigator.language,
-            screen.width + 'x' + screen.height,
-            new Date().getTimezoneOffset(),
-            navigator.hardwareConcurrency || 'unknown'
-        ].join('|');
-        
-        deviceId = 'device-' + btoa(fingerprint).substring(0, 32).replace(/[^a-zA-Z0-9]/g, '');
+        deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
         localStorage.setItem('deviceId', deviceId);
+        console.log('🆔 Neue Device-ID erstellt:', deviceId);
     }
-    
     return deviceId;
 }
 
-async function validateAndSaveToken(token) {
+// ==========================================
+// TOKEN MANAGEMENT
+// ==========================================
+
+function saveToken(token) {
+    localStorage.setItem('userToken', token);
+    console.log('💾 Token gespeichert');
+}
+
+function getToken() {
+    return localStorage.getItem('userToken');
+}
+
+function clearToken() {
+    localStorage.removeItem('userToken');
+    console.log('🗑️ Token gelöscht');
+}
+
+// ==========================================
+// BACKEND API CALLS
+// ==========================================
+
+async function checkUserStatus() {
+    const token = getToken();
+    const deviceId = getOrCreateDeviceId();
+
+    if (!token) {
+        return { valid: false, error: 'No token found' };
+    }
+
     try {
-        const deviceId = getOrCreateDeviceId();
-        
-        const response = await fetch(`${BACKEND_CONFIG.url}/api/auth/validate?token=${token}&deviceId=${deviceId}`);
-        
-        if (!response.ok) {
-            const error = await response.json();
-            return { success: false, error: error.error || 'Token validation failed' };
-        }
-        
+        const response = await fetch(`${BACKEND_URL}/api/auth/validate?token=${token}&deviceId=${deviceId}`);
         const data = await response.json();
-        
-        if (data.valid) {
-            localStorage.setItem('token', token);
-            localStorage.setItem('deviceId', deviceId);
-            console.log('✅ Token valid and saved');
-            return { success: true, user: data.user };
+
+        if (response.ok && data.valid) {
+            return { 
+                valid: true, 
+                user: data.user 
+            };
         } else {
-            return { success: false, error: data.error || 'Invalid token' };
+            return { 
+                valid: false, 
+                error: data.error || 'Validation failed' 
+            };
         }
     } catch (error) {
         console.error('Token validation error:', error);
-        return { success: false, error: 'Could not reach server. Check your internet connection.' };
+        return { 
+            valid: false, 
+            error: 'Network error' 
+        };
     }
 }
 
-async function checkUserStatus() {
-    const token = localStorage.getItem('token');
-    const deviceId = localStorage.getItem('deviceId');
-    
-    if (!token || !deviceId) {
-        return { hasToken: false, valid: false };
-    }
-    
+async function fetchCoffeesFromBackend() {
+    const token = getToken();
+    const deviceId = getOrCreateDeviceId();
+
+    if (!token) return null;
+
     try {
-        const response = await fetch(`${BACKEND_CONFIG.url}/api/auth/validate?token=${token}&deviceId=${deviceId}`);
+        const response = await fetch(`${BACKEND_URL}/api/coffees?token=${token}&deviceId=${deviceId}`);
         const data = await response.json();
-        
-        return {
-            hasToken: true,
-            valid: data.valid || false,
-            user: data.user
-        };
+
+        if (response.ok && data.success) {
+            console.log(`📦 ${data.coffees.length} Kaffees vom Backend geladen`);
+            return data.coffees;
+        } else {
+            console.error('Backend fetch failed:', data.error);
+            return null;
+        }
     } catch (error) {
-        console.warn('Could not check token status:', error);
-        return { hasToken: true, valid: false, error: error.message };
+        console.error('Fetch coffees error:', error);
+        return null;
     }
 }
 
 async function syncCoffeesToBackend(coffees) {
-    if (!BACKEND_CONFIG.syncEnabled) return;
-    if (!navigator.onLine) {
-        console.log('⏸️ Offline - Sync pausiert');
-        return;
+    const token = getToken();
+    const deviceId = getOrCreateDeviceId();
+
+    if (!token) {
+        console.log('⚠️ Kein Token vorhanden. Sync übersprungen.');
+        return false;
     }
-    
+
     try {
-        const token = localStorage.getItem('token');
-        const deviceId = localStorage.getItem('deviceId');
-        
-        if (!token || !deviceId) {
-            console.warn('⚠️ Kein Token - Backend-Sync deaktiviert');
-            return;
-        }
-        
-        const response = await fetch(`${BACKEND_CONFIG.url}/api/coffees`, {
+        const response = await fetch(`${BACKEND_URL}/api/coffees`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, deviceId, coffees })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token,
+                deviceId,
+                coffees
+            })
         });
-        
+
         const data = await response.json();
-        
-        if (data.success) {
-            console.log('✅ Sync erfolgreich:', data.saved, 'coffees');
-            localStorage.setItem('lastSync', new Date().toISOString());
+
+        if (response.ok && data.success) {
+            console.log(`✅ ${data.saved} Kaffees zum Backend synchronisiert`);
+            return true;
         } else {
-            console.error('❌ Sync fehlgeschlagen:', data.error);
+            console.error('Sync failed:', data.error);
+            return false;
         }
-    } catch (err) {
-        console.error('❌ Sync Fehler:', err.message);
+    } catch (error) {
+        console.error('Sync error:', error);
+        return false;
     }
 }
 
-async function loadCoffeesFromBackend() {
-    if (!BACKEND_CONFIG.syncEnabled) return null;
-    if (!navigator.onLine) {
-        console.log('⏸️ Offline - Lade aus localStorage');
-        return null;
-    }
-    
-    try {
-        const token = localStorage.getItem('token');
-        const deviceId = localStorage.getItem('deviceId');
-        
-        if (!token || !deviceId) {
-            console.log('⚠️ Kein Token - kein Backend-Load möglich');
-            return null;
-        }
-        
-        const response = await fetch(
-            `${BACKEND_CONFIG.url}/api/coffees?token=${token}&deviceId=${deviceId}`
-        );
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            console.log('✅ Coffees vom Backend geladen:', data.coffees.length);
-            return data.coffees;
-        } else {
-            console.error('❌ Backend-Load fehlgeschlagen:', data.error);
-            return null;
-        }
-    } catch (err) {
-        console.error('❌ Backend-Load Fehler:', err.message);
-        return null;
-    }
-}
-
-function mergeCoffees(localCoffees, backendCoffees) {
-    if (!backendCoffees || backendCoffees.length === 0) {
-        return localCoffees;
-    }
-    
-    if (!localCoffees || localCoffees.length === 0) {
-        return backendCoffees;
-    }
-    
-    const merged = [...backendCoffees];
-    
-    localCoffees.forEach(local => {
-        const existsInBackend = backendCoffees.some(
-            backend => backend.name === local.name && 
-                       backend.addedDate === local.addedDate
-        );
-        
-        if (!existsInBackend) {
-            merged.push(local);
-        }
-    });
-    
-    return merged;
-}
+// ==========================================
+// INITIALIZATION
+// ==========================================
 
 async function initBackendSync() {
-    console.log('🔄 Initialisiere Backend-Sync...');
-    
     try {
+        console.log('🔄 Initialisiere Backend-Sync...');
         const status = await checkUserStatus();
         
-        if (!status.hasToken) {
-            console.log('⚠️ Kein Token vorhanden - Aktivierung erforderlich');
-            BACKEND_CONFIG.syncEnabled = false;
-            return;
-        }
-        
-        if (!status.valid) {
-            console.warn('⚠️ Token ungültig - Backend-Sync pausiert bis zur Aktivierung');
-            BACKEND_CONFIG.syncEnabled = false;
-            return;
-        }
-        
-        const backendCoffees = await loadCoffeesFromBackend();
-        const localCoffees = JSON.parse(localStorage.getItem('coffees') || '[]');
-        const mergedCoffees = mergeCoffees(localCoffees, backendCoffees);
-        
-        localStorage.setItem('coffees', JSON.stringify(mergedCoffees));
-        
-        if (typeof coffees !== 'undefined') {
-            coffees.length = 0;
-            coffees.push(...mergedCoffees);
-        }
-        
-        if (mergedCoffees.length > 0) {
-            await syncCoffeesToBackend(mergedCoffees);
-        }
-        
-        if (typeof renderCoffees === 'function') {
-            renderCoffees();
-        }
-        
-        console.log('✅ Backend-Sync initialisiert');
-        
-    } catch (error) {
-        console.error('❌ Backend-Sync Init Fehler:', error);
-        BACKEND_CONFIG.syncEnabled = false;
-        console.log('⚠️ Backend-Sync deaktiviert - App läuft im Offline-Modus');
-    }
-}
-
-if (typeof window !== 'undefined') {
-    const originalSaveCoffeeManual = window.saveCoffeeManual;
-    if (originalSaveCoffeeManual) {
-        window.saveCoffeeManual = async function() {
-            originalSaveCoffeeManual();
-            if (BACKEND_CONFIG.syncEnabled) {
-                await syncCoffeesToBackend(coffees);
+        if (status.valid) {
+            console.log(`✅ Eingeloggt als: ${status.user.username}`);
+            // Coffees vom Backend laden
+            const remoteCoffees = await fetchCoffeesFromBackend();
+            if (remoteCoffees) {
+                // Lokale Liste aktualisieren
+                window.coffees = remoteCoffees;
+                localStorage.setItem('coffees', JSON.stringify(window.coffees));
+                if (typeof renderCoffees === 'function') renderCoffees();
             }
-        };
+        } else {
+            console.log('ℹ️ Kein gültiger Token vorhanden. Bitte in den Settings eingeben.');
+        }
+    } catch (error) {
+        // Dieser Block ist entscheidend: Er fängt Fehler ab, damit das UI weiterlebt
+        console.warn('⚠️ Backend-Sync konnte nicht initialisiert werden:', error.message);
+        console.log('📦 App läuft im lokalen Modus weiter.');
     }
 }
 
-window.addEventListener('online', async () => {
-    console.log('🌐 Verbindung wieder hergestellt');
-    if (BACKEND_CONFIG.syncEnabled) {
-        const localCoffees = JSON.parse(localStorage.getItem('coffees') || '[]');
-        await syncCoffeesToBackend(localCoffees);
-    }
-});
+// ==========================================
+// UI INTEGRATION
+// ==========================================
 
-window.addEventListener('offline', () => {
-    console.log('📴 Offline-Modus');
-});
+function setupTokenUI() {
+    const tokenInput = document.getElementById('tokenInput');
+    const saveTokenBtn = document.getElementById('saveTokenBtn');
+    const clearTokenBtn = document.getElementById('clearTokenBtn');
+    const tokenStatus = document.getElementById('tokenStatus');
+
+    // Load existing token
+    const existingToken = getToken();
+    if (existingToken) {
+        tokenInput.value = existingToken;
+    }
+
+    // Save token
+    saveTokenBtn?.addEventListener('click', async () => {
+        const token = tokenInput.value.trim();
+        
+        if (!token) {
+            tokenStatus.innerHTML = '<span style="color: var(--error);">⚠️ Please enter a token</span>';
+            return;
+        }
+
+        tokenStatus.innerHTML = '<span style="color: var(--text-secondary);">⏳ Validating...</span>';
+
+        saveToken(token);
+        const status = await checkUserStatus();
+
+        if (status.valid) {
+            tokenStatus.innerHTML = `<span style="color: var(--success);">✅ Connected as ${status.user.username}</span>`;
+            
+            // Sync data
+            const remoteCoffees = await fetchCoffeesFromBackend();
+            if (remoteCoffees) {
+                window.coffees = remoteCoffees;
+                localStorage.setItem('coffees', JSON.stringify(window.coffees));
+                if (typeof renderCoffees === 'function') renderCoffees();
+            }
+        } else {
+            clearToken();
+            tokenStatus.innerHTML = `<span style="color: var(--error);">❌ ${status.error}</span>`;
+        }
+    });
+
+    // Clear token
+    clearTokenBtn?.addEventListener('click', () => {
+        clearToken();
+        tokenInput.value = '';
+        tokenStatus.innerHTML = '<span style="color: var(--text-secondary);">Token cleared</span>';
+    });
+}
+
+// ==========================================
+// AUTO-INIT
+// ==========================================
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        initBackendSync().catch(err => {
-            console.error('Backend-Sync Init Error:', err);
-            console.log('⚠️ App läuft im Offline-Modus');
-        });
+        initBackendSync();
+        setupTokenUI();
     });
 } else {
-    initBackendSync().catch(err => {
-        console.error('Backend-Sync Init Error:', err);
-        console.log('⚠️ App läuft im Offline-Modus');
-    });
+    initBackendSync();
+    setupTokenUI();
 }
 
-console.log('📦 Backend-Sync Modul geladen');
-
-if (typeof window !== 'undefined') {
-    window.validateAndSaveToken = validateAndSaveToken;
-    window.checkUserStatus = checkUserStatus;
-    window.initBackendSync = initBackendSync;
-    window.BACKEND_CONFIG = BACKEND_CONFIG;
-}
+// Export functions for use in app.js
+window.backendSync = {
+    syncCoffeesToBackend,
+    checkUserStatus,
+    getToken
+};
