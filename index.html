@@ -16,6 +16,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html {
@@ -60,7 +61,7 @@
             color: var(--text-primary);
             min-height: 100vh;
             padding: 40px 20px 100px;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease;
         }
 
         .container {
@@ -148,11 +149,6 @@
             box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
         }
 
-        .camera-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(212, 165, 116, 0.3);
-        }
-
         .camera-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -187,10 +183,6 @@
             transform: translateY(-1px);
         }
 
-        .upload-button:active {
-            transform: translateY(0);
-        }
-
         .upload-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -219,10 +211,6 @@
             border-color: var(--accent);
             color: var(--accent);
             transform: translateY(-1px);
-        }
-
-        .manual-button:active {
-            transform: translateY(0);
         }
 
         .button-icon {
@@ -409,10 +397,6 @@
             border-color: var(--accent);
             color: var(--accent);
             transform: translateY(-1px);
-        }
-
-        .grinder-option:active {
-            transform: translateY(0);
         }
 
         .coffee-list {
@@ -2441,7 +2425,7 @@
 
         function adjustGrind(coffee, change) {
             const grinder = preferredGrinder;
-            const current = coffee.customGrind || getGrinderSettings(grinder, coffee.process.toLowerCase());
+            const current = coffee.customGrind || getGrinderSettings(grinder, coffee);
             
             if (grinder === 'comandante') {
                 const match = current.match(/(\d+)(?:-(\d+))?/);
@@ -2467,6 +2451,17 @@
                 }
                 return low.toFixed(1);
             }
+        }
+
+        function getGrinderSettings(grinder, coffee) {
+            const brewParams = getBrewRecommendations(coffee);
+            return brewParams.grindSetting;
+        }
+
+        function getDefaultTemp(processType) {
+            const tempCoffee = { process: processType, altitude: '1500', cultivar: 'Unknown', origin: 'Unknown' };
+            const brewParams = getBrewRecommendations(tempCoffee);
+            return brewParams.temperature;
         }
 
         function adjustTemp(current, change) {
