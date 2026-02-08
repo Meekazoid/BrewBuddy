@@ -787,6 +787,61 @@ body.light-mode .water-hardness-badge {
     color: var(--accent);
 }
 
+.param-value-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.param-adjust {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.adjust-btn {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+}
+
+.adjust-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.reset-adjustments-btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 8px 20px;
+    background: transparent;
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reset-adjustments-btn:hover {
+    background: rgba(255, 107, 107, 0.1);
+}
+
 /* ==========================================
    14. RATIO CONTROL (SLIDER)
    ========================================== */
@@ -1189,8 +1244,8 @@ body.light-mode .step-progress-bar {
 }
 
 .control-btn {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 50%;
@@ -1200,7 +1255,7 @@ body.light-mode .step-progress-bar {
     cursor: pointer;
     box-shadow: 0 4px 16px var(--shadow);
     transition: all 0.2s;
-    opacity: 0.4;
+    opacity: 0.3;
 }
 
 .control-icon {
@@ -1226,7 +1281,7 @@ body.light-mode .step-progress-bar {
 #waterControlBtn.active {
     background: rgba(66, 165, 245, 0.2);
     border-color: rgba(66, 165, 245, 0.4);
-    opacity: 0.4;
+    opacity: 0.3;
 }
 
 #waterControlBtn.active:hover {
@@ -1339,6 +1394,30 @@ body.light-mode .step-progress-bar {
 
 .restore-btn:hover {
     background: var(--accent-hover);
+}
+
+.decaf-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.permanent-delete-btn {
+    padding: 8px 16px;
+    background: transparent;
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.permanent-delete-btn:hover {
+    background: rgba(255, 107, 107, 0.15);
 }
 
 .decaf-empty {
@@ -1454,8 +1533,8 @@ body.light-mode .step-progress-bar {
     }
 
     .param-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
     }
 
     .timer-display {

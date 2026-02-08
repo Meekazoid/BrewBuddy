@@ -633,6 +633,54 @@ function applySuggestion(index, newGrind, newTemp) {
 }
 
 // ==========================================
+// 8b. MANUAL PARAM ADJUSTMENTS (+/− Buttons)
+// ==========================================
+
+function adjustGrindManual(index, direction) {
+    const coffee = coffees[index];
+    const currentGrind = coffee.customGrind || getBrewRecommendations(coffee).grindSetting;
+
+    if (preferredGrinder === 'comandante') {
+        const match = currentGrind.match(/(\d+)/);
+        if (!match) return;
+        const newVal = Math.max(1, parseInt(match[1]) + direction);
+        coffee.customGrind = `${newVal} clicks`;
+    } else {
+        const match = currentGrind.match(/([\d.]+)/);
+        if (!match) return;
+        const newVal = Math.max(0.5, parseFloat(match[1]) + (direction * 0.5));
+        coffee.customGrind = newVal.toFixed(1);
+    }
+
+    saveCoffeesAndSync();
+    renderCoffees();
+}
+
+function adjustTempManual(index, direction) {
+    const coffee = coffees[index];
+    const currentTemp = coffee.customTemp || getBrewRecommendations(coffee).temperature;
+
+    const match = currentTemp.match(/(\d+)(?:-(\d+))?/);
+    if (!match) return;
+
+    const low = parseInt(match[1]) + direction;
+    const high = match[2] ? parseInt(match[2]) + direction : null;
+    coffee.customTemp = high ? `${low}-${high}°C` : `${low}°C`;
+
+    saveCoffeesAndSync();
+    renderCoffees();
+}
+
+function resetCoffeeAdjustments(index) {
+    const coffee = coffees[index];
+    delete coffee.customGrind;
+    delete coffee.customTemp;
+    delete coffee.feedback;
+    saveCoffeesAndSync();
+    renderCoffees();
+}
+
+// ==========================================
 // 9. COFFEE CARD RENDERING
 // ==========================================
 
@@ -704,11 +752,23 @@ function renderCoffeeCard(coffee, index) {
                 <div class="param-grid">
                     <div class="param-box">
                         <div class="param-label">${brewParams.grinderLabel}</div>
-                        <div class="param-value">${brewParams.grindSetting}</div>
+                        <div class="param-value-row">
+                            <div class="param-value">${brewParams.grindSetting}</div>
+                            <div class="param-adjust">
+                                <button class="adjust-btn" onclick="adjustGrindManual(${index}, 1); event.stopPropagation();">+</button>
+                                <button class="adjust-btn" onclick="adjustGrindManual(${index}, -1); event.stopPropagation();">−</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="param-box">
                         <div class="param-label">Temperature</div>
-                        <div class="param-value">${brewParams.temperature}</div>
+                        <div class="param-value-row">
+                            <div class="param-value">${brewParams.temperature}</div>
+                            <div class="param-adjust">
+                                <button class="adjust-btn" onclick="adjustTempManual(${index}, 1); event.stopPropagation();">+</button>
+                                <button class="adjust-btn" onclick="adjustTempManual(${index}, -1); event.stopPropagation();">−</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="param-box">
                         <div class="param-label">Ratio / Water</div>
@@ -786,6 +846,7 @@ function renderCoffeeCard(coffee, index) {
                         </div>
                     </div>
                     <div class="feedback-suggestion hidden" id="suggestion-${index}"></div>
+                    <button class="reset-adjustments-btn" onclick="resetCoffeeAdjustments(${index}); event.stopPropagation();">Reset Adjustments</button>
                 </div>
                 
                 <div style="margin-top: 20px; padding: 16px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.9rem;">
@@ -885,6 +946,16 @@ function restoreCoffee(originalIndex) {
     saveCoffeesAndSync();
     renderDecafList();
     renderCoffees();
+}
+
+function permanentDeleteCoffee(originalIndex) {
+    if (originalIndex < 0 || originalIndex >= coffees.length) return;
+
+    if (confirm('Permanently delete this coffee? This cannot be undone.')) {
+        coffees.splice(originalIndex, 1);
+        saveCoffeesAndSync();
+        renderDecafList();
+    }
 }
 
 function toggleFavorite(originalIndex) {
@@ -1316,7 +1387,10 @@ function renderDecafList() {
                 <div class="decaf-card-name">${item.coffee.name}</div>
                 <div class="decaf-card-origin">${item.coffee.origin}</div>
             </div>
-            <button class="restore-btn" onclick="restoreCoffee(${item.index})">Restore</button>
+            <div class="decaf-card-actions">
+                <button class="restore-btn" onclick="restoreCoffee(${item.index})">Restore</button>
+                <button class="permanent-delete-btn" onclick="permanentDeleteCoffee(${item.index})">Delete</button>
+            </div>
         </div>
     `).join('');
 }
