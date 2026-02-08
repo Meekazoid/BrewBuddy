@@ -87,26 +87,33 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    margin-bottom: 50px;
+    text-align: center;
+    margin-bottom: 48px;
+    padding: 0;
 }
 
 .logo-title-group {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
 }
 
 .header-logo {
     height: 72px;
     width: auto;
+    display: block;
+    margin: 0 auto;
     transition: filter 0.3s ease;
-    filter: invert(1) sepia(1) saturate(1.5) hue-rotate(-10deg) brightness(1.1);
+    /* Dark mode: warm gold tone matching --accent (#d4a574) */
+    filter: invert(1) sepia(0.6) saturate(1.2) hue-rotate(-10deg) brightness(1.05) contrast(1.05);
 }
 
 body.light-mode .header-logo {
-    filter: sepia(1) saturate(1.8) hue-rotate(-15deg) brightness(0.85) contrast(1.1);
+    /* Light mode: deeper warm gold */
+    filter: sepia(0.8) saturate(1.4) hue-rotate(-12deg) brightness(0.82) contrast(1.15);
 }
 
 h1 {
@@ -115,15 +122,19 @@ h1 {
     font-weight: 300;
     letter-spacing: 0.25em;
     text-transform: uppercase;
+    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 .header-subtitle {
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-secondary);
     font-weight: 400;
-    margin-top: 8px;
+    margin-top: 6px;
+    text-align: center;
 }
 
 /* ==========================================
@@ -1495,7 +1506,7 @@ body.light-mode .step-progress-bar {
     }
 
     .header-logo {
-        height: 60px;
+        height: 56px;
     }
 
     .upload-button,
@@ -1601,7 +1612,7 @@ body.light-mode .step-progress-bar {
     }
 
     .header-logo {
-        height: 53px;
+        height: 48px;
     }
 
     .coffee-name {
