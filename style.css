@@ -1258,7 +1258,7 @@ body.light-mode .step-progress-bar {
     width: 40px;
     height: 40px;
     background: var(--bg-secondary);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1266,7 +1266,7 @@ body.light-mode .step-progress-bar {
     cursor: pointer;
     box-shadow: 0 4px 16px var(--shadow);
     transition: all 0.2s;
-    opacity: 0.3;
+    opacity: 0.6;
 }
 
 .control-icon {
@@ -1292,7 +1292,7 @@ body.light-mode .step-progress-bar {
 #waterControlBtn.active {
     background: rgba(66, 165, 245, 0.2);
     border-color: rgba(66, 165, 245, 0.4);
-    opacity: 0.3;
+    opacity: 0.6;
 }
 
 #waterControlBtn.active:hover {
