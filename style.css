@@ -346,15 +346,15 @@ button:hover {
 
 .grinder-toggle {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
-    max-width: 420px;
+    max-width: 540px;
     justify-content: center;
 }
 
 .grinder-option {
     flex: 1;
-    padding: 10px 16px;
+    padding: 10px 10px;
     background: var(--bg-card);
     color: var(--text-secondary);
     border: 2px solid var(--border);
@@ -367,6 +367,7 @@ button:hover {
     gap: 2px;
     position: relative;
     overflow: hidden;
+    min-width: 0; /* Erlaubt Shrinking */
 }
 
 .grinder-option::before {
@@ -401,10 +402,13 @@ button:hover {
 }
 
 .grinder-name {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     position: relative;
     z-index: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .grinder-subtext {
@@ -1529,14 +1533,15 @@ body.light-mode .step-progress-bar {
 
     .grinder-toggle {
         width: 100%;
+        gap: 5px;
     }
 
     .grinder-option {
-        padding: 12px 14px;
+        padding: 10px 8px;
     }
 
     .grinder-name {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .grinder-subtext {
@@ -1633,14 +1638,10 @@ body.light-mode .step-progress-bar {
     }
 
     .grinder-name {
-        font-size: 0.8rem;
-    }
-
-    .grinder-subtext {
-        font-size: 0.6rem;
+        font-size: 0.75rem;
     }
 
     .grinder-option {
-        padding: 10px 12px;
+        padding: 10px 6px;
     }
 }

@@ -2,6 +2,7 @@
 // BREWBUDDY - APP.JS
 // Extracted & cleaned from index.html
 // Dead code eliminated, modular structure
+// WITH TIMEMORE S3 SUPPORT
 // ==========================================
 
 // ==========================================
@@ -53,26 +54,45 @@ function toggleManual() {
 function initGlobalGrinder() {
     const fellowBtn = document.getElementById('global-fellow');
     const comandanteBtn = document.getElementById('global-comandante');
+    const timemoreBtn = document.getElementById('global-timemore');
 
+    // Reset all states
+    fellowBtn.classList.remove('active');
+    comandanteBtn.classList.remove('active');
+    timemoreBtn.classList.remove('active');
+
+    // Set active state based on preference
     if (preferredGrinder === 'comandante') {
-        fellowBtn.classList.remove('active');
         comandanteBtn.classList.add('active');
+    } else if (preferredGrinder === 'timemore') {
+        timemoreBtn.classList.add('active');
+    } else {
+        fellowBtn.classList.add('active');
     }
 
+    // Bind event listeners
     fellowBtn.addEventListener('click', () => switchGlobalGrinder('fellow'));
     comandanteBtn.addEventListener('click', () => switchGlobalGrinder('comandante'));
+    timemoreBtn.addEventListener('click', () => switchGlobalGrinder('timemore'));
 }
 
 async function switchGlobalGrinder(grinder) {
     const fellowBtn = document.getElementById('global-fellow');
     const comandanteBtn = document.getElementById('global-comandante');
+    const timemoreBtn = document.getElementById('global-timemore');
 
+    // Remove all active states
+    fellowBtn.classList.remove('active');
+    comandanteBtn.classList.remove('active');
+    timemoreBtn.classList.remove('active');
+
+    // Set active state for selected grinder
     if (grinder === 'fellow') {
         fellowBtn.classList.add('active');
-        comandanteBtn.classList.remove('active');
-    } else {
-        fellowBtn.classList.remove('active');
+    } else if (grinder === 'comandante') {
         comandanteBtn.classList.add('active');
+    } else if (grinder === 'timemore') {
+        timemoreBtn.classList.add('active');
     }
 
     preferredGrinder = grinder;
@@ -92,7 +112,9 @@ async function switchGlobalGrinder(grinder) {
 }
 
 function getGrinderLabel(grinder) {
-    return grinder === 'comandante' ? 'Comandante' : 'Fellow Ode';
+    if (grinder === 'comandante') return 'Comandante';
+    if (grinder === 'timemore') return 'Timemore S3';
+    return 'Fellow Ode';
 }
 
 // ==========================================
@@ -304,9 +326,20 @@ function adjustForWaterHardness(params) {
 
 function getGrinderValue(grindBase, grinder, offset) {
     const o = offset || 0;
+    
     if (grinder === 'comandante') {
         return `${Math.max(1, Math.round(grindBase.comandante + o))} clicks`;
     }
+    
+    if (grinder === 'timemore') {
+        // Baseline: 6.5 entspricht Comandante 22 clicks
+        // Formel: S3_Wert = 6.5 + (Comandante_Klicks - 22) * 0.15
+        const baseValue = 6.5 + (grindBase.comandante - 22) * 0.15;
+        const withOffset = baseValue + (o * 0.15);
+        return Math.max(1.0, withOffset).toFixed(1);
+    }
+    
+    // Fellow Ode (default)
     return Math.max(0.1, grindBase.fellow + o * 0.1).toFixed(1);
 }
 
