@@ -84,3 +84,28 @@ export function replaceState(partialState = {}) {
   if (partialState.apiWaterHardness !== undefined) setApiWaterHardness(partialState.apiWaterHardness);
   if (partialState.userZipCode !== undefined) setUserZipCode(partialState.userZipCode);
 }
+
+// Runtime state for brew timers (not persisted)
+export let brewTimers = {};
+export let animationFrames = {};
+
+// Save coffees to localStorage and sync to backend if token exists
+export async function saveCoffeesAndSync() {
+  setCoffees(coffees);
+  if (window.backendSync?.getToken?.()) {
+    await window.backendSync.syncCoffeesToBackend(coffees);
+  }
+}
+
+// Sanitize HTML to prevent XSS attacks
+export function sanitizeHTML(str) {
+  if (!str) return '';
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return String(str).replace(/[&<>"']/g, char => map[char]);
+}
