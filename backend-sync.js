@@ -27,7 +27,8 @@ function getOrCreateDeviceId() {
             deviceId = 'device-' + hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' + 
                        hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
         } else {
-            // Final fallback for very old browsers
+            // Final fallback for very old browsers (not cryptographically secure)
+            console.warn('⚠️ Using Math.random() fallback for device ID - browser lacks crypto support');
             deviceId = 'device-' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 const r = Math.random() * 16 | 0;
                 const v = c === 'x' ? r : (r & 0x3 | 0x8);
