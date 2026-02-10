@@ -13,18 +13,30 @@ const BACKEND_URL = 'https://brew-buddy-backend-production.up.railway.app';
 function getOrCreateDeviceId() {
     let deviceId = localStorage.getItem('deviceId');
     if (!deviceId) {
-        // Gleicher Fingerprint wie in index.html
-        const fingerprint = [
-            navigator.userAgent,
-            navigator.language,
-            screen.width + 'x' + screen.height,
-            new Date().getTimezoneOffset(),
-            navigator.hardwareConcurrency || 'unknown'
-        ].join('|');
-        
-        deviceId = 'device-' + btoa(fingerprint).substring(0, 32).replace(/[^a-zA-Z0-9]/g, '');
+        // Generate a cryptographically random UUID
+        // Use crypto.randomUUID() if available, otherwise fallback
+        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+            deviceId = 'device-' + crypto.randomUUID();
+        } else if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+            // Fallback using crypto.getRandomValues (more secure than Math.random)
+            const bytes = new Uint8Array(16);
+            crypto.getRandomValues(bytes);
+            bytes[6] = (bytes[6] & 0x0f) | 0x40; // Version 4
+            bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variant 10
+            const hex = Array.from(bytes, function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+            deviceId = 'device-' + hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' + 
+                       hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
+        } else {
+            // Final fallback for very old browsers (not cryptographically secure)
+            console.warn('⚠️ Using Math.random() fallback for device ID - browser lacks crypto support');
+            deviceId = 'device-' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
         localStorage.setItem('deviceId', deviceId);
-        console.log('🆔 Neue Device-ID erstellt:', deviceId);
+        console.log('🆔 New Device-ID created:', deviceId);
     }
     return deviceId;
 }
