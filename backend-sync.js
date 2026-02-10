@@ -17,8 +17,17 @@ function getOrCreateDeviceId() {
         // Use crypto.randomUUID() if available, otherwise fallback
         if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
             deviceId = 'device-' + crypto.randomUUID();
+        } else if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+            // Fallback using crypto.getRandomValues (more secure than Math.random)
+            const bytes = new Uint8Array(16);
+            crypto.getRandomValues(bytes);
+            bytes[6] = (bytes[6] & 0x0f) | 0x40; // Version 4
+            bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variant 10
+            const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+            deviceId = 'device-' + hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' + 
+                       hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
         } else {
-            // Fallback for older browsers
+            // Final fallback for very old browsers
             deviceId = 'device-' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 const r = Math.random() * 16 | 0;
                 const v = c === 'x' ? r : (r & 0x3 | 0x8);
