@@ -68,23 +68,23 @@ export function deleteCoffee(originalIndex) {
     }
 }
 
-export function restoreCoffee(originalIndex) {
+export async function restoreCoffee(originalIndex) {
     if (originalIndex < 0 || originalIndex >= coffees.length) return;
 
     coffees[originalIndex].deleted = false;
     delete coffees[originalIndex].deletedAt;
     saveCoffeesAndSync();
-    renderDecafList();
+    await renderDecafList();
     renderCoffees();
 }
 
-export function permanentDeleteCoffee(originalIndex) {
+export async function permanentDeleteCoffee(originalIndex) {
     if (originalIndex < 0 || originalIndex >= coffees.length) return;
 
     if (confirm('Permanently delete this coffee? This cannot be undone.')) {
         coffees.splice(originalIndex, 1);
         saveCoffeesAndSync();
-        renderDecafList();
+        await renderDecafList();
     }
 }
 
@@ -134,12 +134,11 @@ export function updateCoffeeAmountLive(value, originalIndex) {
 }
 
 // Need to import renderDecafList from settings.js, but to avoid circular dependency, we'll call it dynamically
-function renderDecafList() {
-    import('./settings.js').then(module => {
-        if (module.renderDecafList) {
-            module.renderDecafList();
-        }
-    });
+async function renderDecafList() {
+    const module = await import('./settings.js');
+    if (module.renderDecafList) {
+        module.renderDecafList();
+    }
 }
 
 // Register functions on window for onclick handlers

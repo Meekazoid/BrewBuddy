@@ -99,18 +99,18 @@ function adjustTemp(current, change) {
     return high ? `${low}-${high}°C` : `${low}°C`;
 }
 
-export function applySuggestion(index, grindOffsetDelta, newTemp) {
+export async function applySuggestion(index, grindOffsetDelta, newTemp) {
     // Import dynamically to avoid circular dependency
-    import('./coffee-list.js').then(({ renderCoffees }) => {
-        const coffee = coffees[index];
-        if (grindOffsetDelta && grindOffsetDelta !== 0) {
-            coffee.grindOffset = (coffee.grindOffset || 0) + grindOffsetDelta;
-        }
-        if (newTemp && newTemp !== 'null') coffee.customTemp = newTemp;
-        coffee.feedback = {};
-        saveCoffeesAndSync();
-        renderCoffees(index);
-    });
+    const { renderCoffees } = await import('./coffee-list.js');
+    
+    const coffee = coffees[index];
+    if (grindOffsetDelta && grindOffsetDelta !== 0) {
+        coffee.grindOffset = (coffee.grindOffset || 0) + grindOffsetDelta;
+    }
+    if (newTemp && newTemp !== 'null') coffee.customTemp = newTemp;
+    coffee.feedback = {};
+    saveCoffeesAndSync();
+    renderCoffees(index);
 }
 
 // Manual adjustment functions

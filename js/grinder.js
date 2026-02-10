@@ -31,9 +31,6 @@ export function initGlobalGrinder() {
 }
 
 export async function switchGlobalGrinder(grinder) {
-    // Import renderCoffees dynamically to avoid circular dependency
-    const { renderCoffees } = await import('./coffee-list.js');
-    
     const fellowBtn = document.getElementById('global-fellow');
     const comandanteBtn = document.getElementById('global-comandante');
     const timemoreBtn = document.getElementById('global-timemore');
@@ -58,7 +55,13 @@ export async function switchGlobalGrinder(grinder) {
         await window.backendSync.syncGrinderPreference(grinder);
     }
 
-    renderCoffees();
+    // Import renderCoffees dynamically to avoid circular dependency
+    // Cache the function reference for better performance
+    if (!switchGlobalGrinder._renderCoffees) {
+        const module = await import('./coffee-list.js');
+        switchGlobalGrinder._renderCoffees = module.renderCoffees;
+    }
+    switchGlobalGrinder._renderCoffees();
 
     if (navigator.vibrate) {
         navigator.vibrate(10);
