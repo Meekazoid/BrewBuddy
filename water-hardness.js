@@ -20,7 +20,19 @@ const WaterHardness = (() => {
         '10': { value: 16, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
         '12': { value: 18, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
         '13': { value: 17, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
-        '14': { value: 15, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
+        // 3-digit disambiguation: Berlin (140-143) vs Potsdam (144-149)
+        // Covers all 14xxx ZIP codes with specific 3-digit entries
+        '140': { value: 15, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
+        '141': { value: 15, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
+        '142': { value: 15, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
+        '143': { value: 15, region: 'Berlin', source: 'Berliner Wasserbetriebe' },
+        '144': { value: 15, region: 'Potsdam', source: 'EWP' },
+        '145': { value: 15, region: 'Potsdam', source: 'EWP' },
+        '146': { value: 15, region: 'Potsdam', source: 'EWP' },
+        '147': { value: 15, region: 'Potsdam', source: 'EWP' },
+        '148': { value: 15, region: 'Potsdam', source: 'EWP' },
+        '149': { value: 15, region: 'Potsdam', source: 'EWP' },
+        '14': { value: 15, region: 'Berlin', source: 'Berliner Wasserbetriebe' }, // Fallback (shouldn't be used due to complete 3-digit coverage)
         
         // Hamburg
         '20': { value: 13, region: 'Hamburg', source: 'Hamburg Wasser' },
@@ -31,12 +43,36 @@ const WaterHardness = (() => {
         '80': { value: 19, region: 'München', source: 'Stadtwerke München' },
         '81': { value: 20, region: 'München', source: 'Stadtwerke München' },
         '82': { value: 18, region: 'München Umland', source: 'Lokale Versorger' },
-        '85': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        // 3-digit disambiguation: Ingolstadt (850-851) vs München Umland (852-859)
+        // Covers all 85xxx ZIP codes with specific 3-digit entries
+        '850': { value: 21, region: 'Ingolstadt', source: 'Stadtwerke Ingolstadt' },
+        '851': { value: 21, region: 'Ingolstadt', source: 'Stadtwerke Ingolstadt' },
+        '852': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '853': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '854': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '855': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '856': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '857': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '858': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '859': { value: 22, region: 'München Umland', source: 'Lokale Versorger' },
+        '85': { value: 22, region: 'München Umland', source: 'Lokale Versorger' }, // Fallback (shouldn't be used due to complete 3-digit coverage)
         
         // Köln
         '50': { value: 16, region: 'Köln', source: 'Rheinenergie' },
         '51': { value: 17, region: 'Köln', source: 'Rheinenergie' },
-        '52': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        // 3-digit disambiguation: Aachen (520-521) vs Köln Umland (522-529)
+        // Covers all 52xxx ZIP codes with specific 3-digit entries
+        '520': { value: 14, region: 'Aachen', source: 'ENWOR' },
+        '521': { value: 14, region: 'Aachen', source: 'ENWOR' },
+        '522': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '523': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '524': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '525': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '526': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '527': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '528': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '529': { value: 15, region: 'Köln Umland', source: 'Lokale Versorger' },
+        '52': { value: 14, region: 'Aachen', source: 'ENWOR' }, // Fallback (shouldn't be used due to complete 3-digit coverage)
         
         // Frankfurt
         '60': { value: 15, region: 'Frankfurt', source: 'Mainova' },
@@ -123,12 +159,6 @@ const WaterHardness = (() => {
         // Kassel
         '34': { value: 13, region: 'Kassel', source: 'Städtische Werke Kassel' },
         
-        // Potsdam
-        '14': { value: 15, region: 'Potsdam', source: 'EWP' },
-        
-        // Aachen
-        '52': { value: 14, region: 'Aachen', source: 'ENWOR' },
-        
         // Bielefeld
         '33': { value: 15, region: 'Bielefeld', source: 'Stadtwerke Bielefeld' },
         
@@ -143,9 +173,6 @@ const WaterHardness = (() => {
         
         // Ulm
         '89': { value: 16, region: 'Ulm', source: 'SWU' },
-        
-        // Ingolstadt
-        '85': { value: 21, region: 'Ingolstadt', source: 'Stadtwerke Ingolstadt' }
     };
 
     /**
@@ -187,12 +214,14 @@ const WaterHardness = (() => {
                 return;
             }
 
-            // Get first 2 digits for regional lookup
-            const region = zipCode.substring(0, 2);
+            // Try 3-digit prefix first (for disambiguation), then 2-digit prefix
+            const prefix3 = zipCode.substring(0, 3);
+            const prefix2 = zipCode.substring(0, 2);
             
-            // Check if we have data for this region
-            if (regionalData[region]) {
-                const data = regionalData[region];
+            // Check if we have data for this region (3-digit takes priority)
+            const data = regionalData[prefix3] || regionalData[prefix2];
+            
+            if (data) {
                 const category = getCategory(data.value);
                 const categoryInfo = categories[category];
                 
@@ -235,13 +264,20 @@ const WaterHardness = (() => {
     function getAvailableRegions() {
         const regions = {};
         for (const [zip, data] of Object.entries(regionalData)) {
-            if (!regions[data.region]) {
-                regions[data.region] = {
+            const regionKey = data.region;
+            if (!regions[regionKey]) {
+                regions[regionKey] = {
                     region: data.region,
                     zipPrefix: zip,
                     value: data.value,
                     category: getCategory(data.value)
                 };
+            } else {
+                // Prefer shorter prefixes for display (2-digit over 3-digit)
+                // This ensures regions are shown with their most general ZIP prefix
+                if (zip.length < regions[regionKey].zipPrefix.length) {
+                    regions[regionKey].zipPrefix = zip;
+                }
             }
         }
         return Object.values(regions);
