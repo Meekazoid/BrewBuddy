@@ -12,8 +12,13 @@ export let manualWaterHardness = JSON.parse(localStorage.getItem('manualWaterHar
 export let apiWaterHardness = null; // Water hardness from ZIP lookup
 export let userZipCode = localStorage.getItem('userZipCode') || '';
 
-// Expose coffees on window for legacy non-module scripts (backend-sync.js)
+// Expose state on window for legacy non-module scripts (backend-sync.js)
 window.coffees = coffees;
+window.coffeeAmount = coffeeAmount;
+window.preferredGrinder = preferredGrinder;
+window.waterHardness = waterHardness;
+window.manualWaterHardness = manualWaterHardness;
+window.userZipCode = userZipCode;
 
 // Brew timer state (per-card)
 export let brewTimers = {};
@@ -29,20 +34,24 @@ export function setCoffees(value) {
 export function setCoffeeAmount(value) {
     coffeeAmount = value;
     localStorage.setItem('coffeeAmount', value);
+    window.coffeeAmount = coffeeAmount; // Keep window in sync for legacy scripts
 }
 
 export function setPreferredGrinder(value) {
     preferredGrinder = value;
     localStorage.setItem('preferredGrinder', value);
+    window.preferredGrinder = preferredGrinder; // Keep window in sync for legacy scripts
 }
 
 export function setWaterHardness(value) {
     waterHardness = value;
+    window.waterHardness = waterHardness; // Keep window in sync for legacy scripts
 }
 
 export function setManualWaterHardness(value) {
     manualWaterHardness = value;
     localStorage.setItem('manualWaterHardness', JSON.stringify(value));
+    window.manualWaterHardness = manualWaterHardness; // Keep window in sync for legacy scripts
 }
 
 export function setApiWaterHardness(value) {
@@ -52,6 +61,7 @@ export function setApiWaterHardness(value) {
 export function setUserZipCode(value) {
     userZipCode = value;
     localStorage.setItem('userZipCode', value);
+    window.userZipCode = userZipCode; // Keep window in sync for legacy scripts
 }
 
 export function setBrewTimers(value) {
@@ -60,6 +70,12 @@ export function setBrewTimers(value) {
 
 export function setAnimationFrames(value) {
     animationFrames = value;
+}
+
+// Helper to add a coffee using the setter for consistency
+export function addCoffee(coffee) {
+    coffees.push(coffee);
+    setCoffees(coffees);
 }
 
 // Sync coffees to backend and localStorage
