@@ -3,7 +3,7 @@
  * Provides offline PWA support with intelligent caching strategies
  */
 
-const CACHE_VERSION = 'brewbuddy-v2';
+const CACHE_VERSION = 'brewbuddy-v3';
 
 // Static assets to pre-cache during installation
 const STATIC_ASSETS = [
@@ -105,10 +105,15 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
   
-  // API requests: Network-first with cache fallback
-  // Only cache HTTPS requests to the API domain for security
+  // API requests to our backend domain
   if (url.hostname === API_DOMAIN && url.protocol === 'https:') {
-    event.respondWith(networkFirstStrategy(request));
+    // Only cache GET requests — POST/PUT/DELETE cannot be cached
+    if (request.method === 'GET') {
+      event.respondWith(networkFirstStrategy(request));
+    } else {
+      // Non-GET API requests: pass through to network without caching
+      event.respondWith(fetch(request));
+    }
     return;
   }
   
@@ -137,8 +142,8 @@ function cacheFirstStrategy(request) {
       // Not in cache - fetch from network
       return fetch(request)
         .then((networkResponse) => {
-          // Cache the new response for future use
-          if (networkResponse && networkResponse.status === 200) {
+          // Cache the new response for future use (GET only)
+          if (networkResponse && networkResponse.status === 200 && request.method === 'GET') {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_VERSION)
               .then((cache) => {
@@ -157,12 +162,13 @@ function cacheFirstStrategy(request) {
 /**
  * Network-First Strategy
  * Try network first, fall back to cache if offline
+ * Note: Only call this with GET requests (Cache API does not support POST)
  */
 function networkFirstStrategy(request) {
   return fetch(request)
     .then((networkResponse) => {
-      // Successfully fetched from network - cache it
-      if (networkResponse && networkResponse.status === 200) {
+      // Successfully fetched from network - cache it (GET only safety check)
+      if (networkResponse && networkResponse.status === 200 && request.method === 'GET') {
         const responseToCache = networkResponse.clone();
         caches.open(CACHE_VERSION)
           .then((cache) => {
