@@ -7,6 +7,7 @@ import { coffeeAmount, sanitizeHTML } from './state.js';
 import { getBrewRecommendations, boldWeights } from './brew-engine.js';
 import { getRoastFreshnessBadge } from './freshness.js';
 import { ensureInitialValues } from './feedback.js';
+import './brew-timer.js';
 
 export function renderCoffeeCard(coffee, index) {
     ensureInitialValues(coffee);

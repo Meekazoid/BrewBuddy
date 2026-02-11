@@ -131,3 +131,8 @@ function updateBrewProgress(index) {
 
     animationFrames[index] = requestAnimationFrame(() => updateBrewProgress(index));
 }
+
+// Register functions on window for onclick handlers in coffee-cards.js
+window.startBrewTimer = startBrewTimer;
+window.pauseBrewTimer = pauseBrewTimer;
+window.resetBrewTimer = resetBrewTimer;
