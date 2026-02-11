@@ -420,14 +420,12 @@ function setupTokenUI() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initBackendSync();
-        setupTokenUI();
     });
 } else {
     initBackendSync();
-    setupTokenUI();
 }
 
-// Export functions for use in app.js
+// Export functions for use in app.js and global access
 window.backendSync = {
     syncCoffeesToBackend,
     syncGrinderPreference,
