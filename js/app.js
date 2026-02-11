@@ -43,6 +43,11 @@ window.updateRoastDate = updateRoastDate;
 window.startBrewTimer = startBrewTimer;
 window.pauseBrewTimer = pauseBrewTimer;
 window.resetBrewTimer = resetBrewTimer;
+console.log('✅ Brew timer functions attached to window:', {
+    startBrewTimer: typeof window.startBrewTimer,
+    pauseBrewTimer: typeof window.pauseBrewTimer,
+    resetBrewTimer: typeof window.resetBrewTimer
+});
 // Initialize event listeners
 function initEventListeners() {
     // Camera & Upload
