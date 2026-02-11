@@ -3,11 +3,12 @@
 // Freshness badge calculation
 // ==========================================
 
-import { coffees } from './state.js';
+import { coffees, saveCoffeesAndSync } from './state.js'; // <--- saveCoffeesAndSync importieren
 
 export function updateRoastDate(index, dateValue) {
     coffees[index].roastDate = dateValue;
     localStorage.setItem('coffees', JSON.stringify(coffees));
+    saveCoffeesAndSync(); // <--- Backend-Sync und State
 
     const badgeWrapper = document.getElementById(`freshness-badge-${index}`);
     if (badgeWrapper) {
