@@ -109,19 +109,24 @@ header {
 }
 
 .header-logo {
-    /* height set dynamically by JS to match title+subtitle */
-    height: 52px;
+    /* Die Höhe wird vom Skript in der index.html gesteuert, 
+       wir skalieren das Ergebnis hier um 10% */
+    height: 52px; 
     width: auto;
     display: block;
     flex-shrink: 0;
-    transition: filter 0.3s ease;
-    /* Dark mode: invert black→white, then dim to match --text-secondary */
-    filter: invert(1) grayscale(1) opacity(0.6);
+
+    /* 10% Vergrößerung */
+    transform: scale(1.1);
+    transform-origin: center left; /* Vergrößert nach rechts/oben/unten */
+
+    /* WICHTIG: Alle alten Filter entfernen! */
+    filter: none !important; 
 }
 
 body.light-mode .header-logo {
     /* Light mode: warm brown #d4a574 */
-    filter: sepia(0.6) saturate(1.5) hue-rotate(350deg) brightness(0.9);
+    filter: none !important;
 }
 
 h1 {
