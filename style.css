@@ -628,7 +628,7 @@ body.light-mode .coffee-card.expanded {
     display: flex;
     justify-content: space-between;
     align-items: start;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     position: relative;
 }
 
@@ -798,71 +798,89 @@ body.light-mode .delete-btn {
     font-weight: 500;
 }
 
+/* ─── Bottom-corner badge positioning ─── */
 .process-freshness-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+    margin-top: 12px;
     gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
+    pointer-events: none;
 }
 
 .coffee-process-small {
     display: inline-block;
-    background: var(--accent);
-    color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.72rem;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.68rem;
     font-weight: 500;
+    pointer-events: auto;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.coffee-card:hover .coffee-process-small {
+    opacity: 0.85;
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .freshness-badge-inline .freshness-badge {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.72rem;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.68rem;
     font-weight: 500;
+    pointer-events: auto;
+    opacity: 0.6;
+    transition: all 0.2s;
 }
 
-.freshness-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
+.coffee-card:hover .freshness-badge-inline .freshness-badge {
+    opacity: 0.85;
 }
 
-.freshness-badge.resting {
-    background: rgba(33, 150, 243, 0.15);
+/* Freshness badge color overrides — keep tint but match card icon style */
+.freshness-badge-inline .freshness-badge.resting {
+    background: rgba(33, 150, 243, 0.08);
+    border-color: rgba(33, 150, 243, 0.2);
     color: #2196F3;
 }
 
-.freshness-badge.sweet {
-    background: rgba(255, 152, 0, 0.15);
+.freshness-badge-inline .freshness-badge.sweet {
+    background: rgba(255, 152, 0, 0.08);
+    border-color: rgba(255, 152, 0, 0.2);
     color: #FF9800;
 }
 
-.freshness-badge.fading {
-    background: rgba(158, 158, 158, 0.15);
+.freshness-badge-inline .freshness-badge.fading {
+    background: rgba(158, 158, 158, 0.08);
+    border-color: rgba(158, 158, 158, 0.2);
     color: #9E9E9E;
 }
 
-body.light-mode .freshness-badge.resting {
-    background: rgba(25, 118, 210, 0.2);
+body.light-mode .freshness-badge-inline .freshness-badge.resting {
+    background: rgba(25, 118, 210, 0.08);
+    border-color: rgba(25, 118, 210, 0.2);
     color: #1976D2;
 }
 
-body.light-mode .freshness-badge.sweet {
-    background: rgba(245, 124, 0, 0.2);
+body.light-mode .freshness-badge-inline .freshness-badge.sweet {
+    background: rgba(245, 124, 0, 0.08);
+    border-color: rgba(245, 124, 0, 0.2);
     color: #F57C00;
 }
 
-body.light-mode .freshness-badge.fading {
-    background: rgba(97, 97, 97, 0.2);
+body.light-mode .freshness-badge-inline .freshness-badge.fading {
+    background: rgba(97, 97, 97, 0.08);
+    border-color: rgba(97, 97, 97, 0.2);
     color: #616161;
 }
 
