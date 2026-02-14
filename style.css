@@ -457,8 +457,7 @@ button:hover {
     color: var(--text-secondary);
     font-family: 'Sora', sans-serif;
     font-size: 0.68rem;
-    font-weight: 200;
-    text-transform: uppercase;
+    font-weight: 300;
     letter-spacing: 0.5px;
     white-space: nowrap;
 }
@@ -480,7 +479,7 @@ button:hover {
 
 .grinder-option {
     flex: 1;
-    padding: 7px 10px;
+    padding: 5px 10px;
     background: linear-gradient(
         160deg,
         rgba(60, 32, 10, 0.55) 0%,
@@ -555,7 +554,7 @@ body.light-mode .grinder-option.active {
 
 .grinder-name {
     font-size: 0.85rem;
-    font-weight: 300;
+    font-weight: 400;
     position: relative;
     z-index: 1;
     white-space: nowrap;
@@ -1776,7 +1775,7 @@ body.light-mode .step-progress-bar {
     }
 
     .grinder-option {
-        padding: 9px 8px;
+        padding: 5px 8px;
     }
 
     .grinder-name {
@@ -1881,7 +1880,7 @@ body.light-mode .step-progress-bar {
     }
 
     .grinder-option {
-        padding: 9px 6px;
+        padding: 5px 6px;
     }
 }
 
