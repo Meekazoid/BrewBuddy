@@ -157,14 +157,25 @@ h1 {
 
 .brand-dot {
     display: inline-flex;
+    align-items: center;
     width: 5px;
     height: 5px;
     background: var(--accent);
     border-radius: 50%;
-    margin: 0 0.12em;
+    margin: 0 0.25em;
     vertical-align: middle;
     font-size: 0;
     transform: translateY(0);
+}
+
+#brand-title {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-word {
+    display: inline-block;
 }
 
 #brand-title {
@@ -368,14 +379,20 @@ body.light-mode .manual-button:hover {
 }
 
 .button-icon {
-    width: 15px;
-    height: 15px;
     stroke: currentColor;
     stroke-width: 1.4;
     stroke-linecap: round;
     stroke-linejoin: round;
     fill: none;
     flex-shrink: 0;
+}
+
+.action-buttons .btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px;
+    stroke-width: 1.5;
+    margin: 0;
 }
 
 /* ==========================================
@@ -1574,6 +1591,11 @@ body.light-mode .step-progress-bar {
     font-weight: 600;
 }
 
+.popup-header-aligned {
+    display: flex;
+    align-items: center;
+}
+
 .modal-title-with-icon {
     display: flex;
     align-items: center;
@@ -1850,11 +1872,6 @@ body.light-mode .onboarding-icon {
         width: 130px;
         padding: 8px 18px;
         font-size: 0.7rem;
-    }
-
-    .button-icon {
-        width: 14px;
-        height: 14px;
     }
 
     .empty-state {
