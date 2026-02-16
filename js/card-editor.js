@@ -84,12 +84,10 @@ function enterEditMode(index, card) {
             />`;
     }
 
-    // Focus name field
-    const nameInput = document.getElementById(`name-edit-${index}`);
-    if (nameInput) {
-        nameInput.focus();
-        nameInput.select();
-    }
+    // ── Fix #5: KEIN auto-focus / auto-select ──
+    // Auf Android erzeugt focus() sofort die blaue Selektion,
+    // was ungewollt und irritierend wirkt. 
+    // Der User tippt selbst auf das Feld, das er bearbeiten will.
 }
 
 /**
