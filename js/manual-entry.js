@@ -2,13 +2,12 @@
 // MANUAL ENTRY
 // Manual coffee entry form
 // ==========================================
-
 import { coffees, saveCoffeesAndSync } from './state.js';
 import { renderCoffees } from './coffee-list.js';
 import { showMessage } from './messages.js';
 
 export async function saveCoffeeManual() {
-    const name = document.getElementById('name').value.trim();
+    const name = document.getElementById('coffeeName').value.trim();
     const origin = document.getElementById('origin').value.trim();
     const process = document.getElementById('process').value;
     const cultivar = document.getElementById('cultivar').value.trim();
@@ -33,7 +32,7 @@ export async function saveCoffeeManual() {
     saveCoffeesAndSync();
 
     // Clear form
-    ['name', 'origin', 'process', 'cultivar', 'altitude', 'roaster', 'tastingNotes'].forEach(id => {
+    ['coffeeName', 'origin', 'process', 'cultivar', 'altitude', 'roaster', 'tastingNotes'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
