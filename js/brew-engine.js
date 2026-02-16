@@ -158,23 +158,91 @@ function adjustForWaterHardness(params) {
     };
 }
 
+// Conversion Table Reference:
+// | Grinder            | µm/Step | V60     | Chemex  | AeroPress | French Press |
+// |--------------------|---------|---------|---------|-----------|--------------|
+// | Comandante MK3/MK4 | ~30     | 22-28   | 28-32   | 18-24     | 30-34        |
+// | Fellow Ode Gen 2   | ~25     | 3.0-5.0 | 5.0-7.0 | 1.5-3.0   | 6.0-9.0      |
+// | Fellow Ode Gen 1   | ~50     | 2.0-3.5 | 4.0-5.5 | 1.0-1.5   | 5.0-7.0      |
+// | Timemore S3        | ~15     | 50-70   | 68-80   | 40-55     | 80-90        |
+// | Timemore C2        | ~80     | 16-20   | 21-23   | 11-15     | 24-28        |
+// | 1Zpresso JX        | ~25     | 1.4-2.5 | 2.0-2.8 | 1.0-1.4   | 2.5-3.5      |
+// | Baratza Encore     | ~25     | 15-20   | 20-25   | 10-15     | 25-30        |
+
 function getGrinderValue(grindBase, grinder, offset) {
     const o = offset || 0;
-    
-    if (grinder === 'comandante') {
-        return `${Math.max(1, Math.round(grindBase.comandante + o))} clicks`;
+    const base = grindBase.comandante; // All conversions anchor to Comandante clicks
+
+    switch (grinder) {
+
+        // ── Comandante C40 MK3 & MK4 ──
+        // Identical Nitro Blade burrs, ~30µm/click, 40 clicks total
+        // MK4 may need 1-2 clicks finer (polymer jar static), but same scale
+        case 'comandante_mk4':
+        case 'comandante_mk3':
+            return `${Math.max(1, Math.round(base + o))} clicks`;
+
+        // ── Fellow Ode Gen 2 ──
+        // 64mm flat Brew Burrs, min ~250µm, ~25µm/step
+        // Conversion: Fellow = (Comandante - 22) × 0.25 + 3.5
+        // Offset: ±0.1 per unit
+        case 'fellow_gen2': {
+            const val = grindBase.fellow + o * 0.1;
+            return Math.max(0.1, val).toFixed(1);
+        }
+
+        // ── Fellow Ode Gen 1 ──
+        // Standard Brew Burrs, min ~500µm, ~50µm/step
+        // ~1.5 settings lower than Gen 2 across the board
+        // Offset: ±0.1 per unit
+        case 'fellow_gen1': {
+            const val = (grindBase.fellow - 1.5) + o * 0.1;
+            return Math.max(0.1, val).toFixed(1);
+        }
+
+        // ── Timemore Chestnut S3 ──
+        // 40mm S2C890 conical, external adj, 90 clicks, ~15µm/click
+        // Conversion factor: 2.4 (Comandante 25 ≈ S3 60)
+        // Offset: ±2.4 clicks per unit
+        case 'timemore_s3': {
+            const val = Math.round(base * 2.4 + o * 2.4);
+            return `${Math.max(1, val)} clicks`;
+        }
+
+        // ── Timemore Chestnut C2 ──
+        // 38mm steel conical, internal adj, 36 clicks, ~80µm/click
+        // Conversion factor: 0.72 (Comandante 25 ≈ C2 18)
+        // Offset: ±0.72 clicks per unit
+        case 'timemore_c2': {
+            const val = Math.round(base * 0.72 + o * 0.72);
+            return `${Math.max(1, val)} clicks`;
+        }
+
+        // ── 1Zpresso JX ──
+        // Internal adjustment, 30 clicks/rotation, ~25µm/click
+        // Expressed as rotations (e.g. "2.5 rot")
+        // Conversion: rotations = Comandante / 30 × 1.1
+        // Offset: ± (1.1/30) rotations per unit
+        case '1zpresso': {
+            const rotations = base / 30 * 1.1 + o * (1.1 / 30);
+            return `${Math.max(0.1, rotations).toFixed(1)} rot`;
+        }
+
+        // ── Baratza Encore ──
+        // Stepped conical, 40 settings, ~25µm/step
+        // Roughly 1:1 with Comandante for pourover range
+        // Offset: ±1 per unit
+        case 'baratza': {
+            const val = Math.round(base * 0.8 + o);
+            return `${Math.max(1, Math.min(40, val))}`;
+        }
+
+        // ── Fallback: Fellow Gen 2 ──
+        default: {
+            const val = grindBase.fellow + o * 0.1;
+            return Math.max(0.1, val).toFixed(1);
+        }
     }
-    
-    if (grinder === 'timemore') {
-        // Baseline: 6.5 entspricht Comandante 22 clicks
-        // Formel: S3_Wert = 6.5 + (Comandante_Klicks - 22) * 0.15
-        const baseValue = 6.5 + (grindBase.comandante - 22) * 0.15;
-        const withOffset = baseValue + (o * 0.15);
-        return Math.max(1.0, withOffset).toFixed(1);
-    }
-    
-    // Fellow Ode (default)
-    return Math.max(0.1, grindBase.fellow + o * 0.1).toFixed(1);
 }
 
 function formatTemp(tempBase) {
