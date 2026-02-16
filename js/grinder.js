@@ -3,25 +3,18 @@
 // Dropdown-based, 8 grinders + 3 methods
 // ==========================================
 
-import { preferredGrinder, setPreferredGrinder } from './state.js';
-import { preferredMethod, setPreferredMethod } from './state.js';
+import { preferredGrinder, setPreferredGrinder, preferredMethod, setPreferredMethod } from './state.js';
 
 // ── Grinder metadata ──
 const GRINDER_INFO = {
-    comandante_mk4: { label: 'Comandante MK4',   short: 'C40 MK4',   unit: 'clicks' },
-    comandante_mk3: { label: 'Comandante MK3',   short: 'C40 MK3',   unit: 'clicks' },
-    fellow_gen2:    { label: 'Fellow Ode Gen 2',  short: 'Ode Gen 2', unit: '' },
-    fellow_gen1:    { label: 'Fellow Ode Gen 1',  short: 'Ode Gen 1', unit: '' },
-    timemore_s3:    { label: 'Timemore S3',       short: 'S3',        unit: 'clicks' },
-    timemore_c2:    { label: 'Timemore C2',       short: 'C2',        unit: 'clicks' },
-    '1zpresso':     { label: '1Zpresso JX',       short: 'JX',        unit: 'rot' },
-    baratza:        { label: 'Baratza Encore',     short: 'Encore',    unit: '' },
-};
-
-const METHOD_INFO = {
-    v60:       { label: 'V60' },
-    chemex:    { label: 'Chemex' },
-    aeropress: { label: 'AeroPress' },
+    comandante_mk4: { label: 'Comandante MK4',   short: 'C40 MK4' },
+    comandante_mk3: { label: 'Comandante MK3',   short: 'C40 MK3' },
+    fellow_gen2:    { label: 'Fellow Ode Gen 2',  short: 'Ode Gen 2' },
+    fellow_gen1:    { label: 'Fellow Ode Gen 1',  short: 'Ode Gen 1' },
+    timemore_s3:    { label: 'Timemore S3',       short: 'S3' },
+    timemore_c2:    { label: 'Timemore C2',       short: 'C2' },
+    '1zpresso':     { label: '1Zpresso JX',       short: 'JX' },
+    baratza:        { label: 'Baratza Encore',     short: 'Encore' },
 };
 
 // ── Migration: old keys → new ──
@@ -31,7 +24,7 @@ const GRINDER_MIGRATION = {
     'timemore':   'timemore_s3',
 };
 
-export function migrateGrinderPreference() {
+function migrateGrinderPreference() {
     const current = preferredGrinder;
     if (GRINDER_MIGRATION[current]) {
         setPreferredGrinder(GRINDER_MIGRATION[current]);
@@ -44,7 +37,6 @@ export function migrateGrinderPreference() {
  * Initialize both dropdowns
  */
 export function initGlobalGrinder() {
-    // Run migration first
     migrateGrinderPreference();
 
     const grinderSelect = document.getElementById('grinder-select');
@@ -59,7 +51,7 @@ export function initGlobalGrinder() {
     grinderSelect.value = preferredGrinder;
     methodSelect.value = preferredMethod || 'v60';
 
-    // If the stored value doesn't match any option, fall back to fellow_gen2
+    // Fallback if stored value doesn't match any option
     if (!grinderSelect.value || grinderSelect.selectedIndex === -1) {
         grinderSelect.value = 'fellow_gen2';
         setPreferredGrinder('fellow_gen2');
@@ -71,7 +63,7 @@ export function initGlobalGrinder() {
 }
 
 /**
- * Switch grinder preference
+ * Switch grinder preference → re-render cards
  */
 export async function switchGrinder(grinder) {
     setPreferredGrinder(grinder);
@@ -80,7 +72,6 @@ export async function switchGrinder(grinder) {
         await window.backendSync.syncGrinderPreference(grinder);
     }
 
-    // Re-render all coffee cards
     if (!switchGrinder._renderCoffees) {
         const module = await import('./coffee-list.js');
         switchGrinder._renderCoffees = module.renderCoffees;
@@ -88,11 +79,11 @@ export async function switchGrinder(grinder) {
     switchGrinder._renderCoffees();
 
     if (navigator.vibrate) navigator.vibrate(10);
-    console.log(`✓ Grinder switched to: ${grinder}`);
+    console.log(`✓ Grinder → ${grinder}`);
 }
 
 /**
- * Switch brew method preference
+ * Switch brew method preference → re-render cards
  */
 export async function switchMethod(method) {
     setPreferredMethod(method);
@@ -101,7 +92,6 @@ export async function switchMethod(method) {
         await window.backendSync.syncMethodPreference(method);
     }
 
-    // Re-render all coffee cards
     if (!switchMethod._renderCoffees) {
         const module = await import('./coffee-list.js');
         switchMethod._renderCoffees = module.renderCoffees;
@@ -109,7 +99,7 @@ export async function switchMethod(method) {
     switchMethod._renderCoffees();
 
     if (navigator.vibrate) navigator.vibrate(10);
-    console.log(`✓ Method switched to: ${method}`);
+    console.log(`✓ Method → ${method}`);
 }
 
 /**
@@ -124,11 +114,4 @@ export function getGrinderLabel(grinder) {
  */
 export function getGrinderShortLabel(grinder) {
     return GRINDER_INFO[grinder]?.short || GRINDER_INFO.fellow_gen2.short;
-}
-
-/**
- * Get method label
- */
-export function getMethodLabel(method) {
-    return METHOD_INFO[method]?.label || 'V60';
 }
