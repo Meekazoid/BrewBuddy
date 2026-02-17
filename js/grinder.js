@@ -14,7 +14,7 @@ const GRINDER_INFO = {
     fellow_gen1:    { label: 'Fellow Ode Gen 1' },
     fellow_gen2:    { label: 'Fellow Ode Gen 2' },
     timemore_c2:    { label: 'Timemore Chestnut C2' },
-    timemore_s3:    { label: 'Timemore Sculptor 078S' },
+    timemore_s3:    { label: 'Timemore Chestnut S3' },
 };
 
 const METHOD_INFO = {

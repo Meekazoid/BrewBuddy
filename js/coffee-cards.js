@@ -122,7 +122,6 @@ export function renderCoffeeCard(coffee, index) {
                     <div class="timer-display" id="brew-timer-display-${index}">00:00</div>
                     <div class="timer-controls-main">
                         <button class="timer-btn start-brew" id="start-brew-${index}" onclick="event.stopPropagation(); startBrewTimer(${index});">
-                            <img src="v60-icon.png" class="v60-icon" alt="V60">
                             Start Brew
                         </button>
                     </div>
@@ -133,7 +132,7 @@ export function renderCoffeeCard(coffee, index) {
                 </div>
                 
                 <div class="brew-steps">
-                    <h4>V60 Pour-Over Steps</h4>
+                    <h4>${brewParams.method === 'aeropress' ? 'AeroPress Brew Steps' : brewParams.method === 'chemex' ? 'Chemex Pour-Over Steps' : 'V60 Pour-Over Steps'}</h4>
                     ${brewParams.steps.map((step, stepIndex) => `
                         <div class="step">
                             <div class="step-time">${step.time}</div>
