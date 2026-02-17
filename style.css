@@ -211,8 +211,7 @@ h1 {
 .cs-btn {
     position: relative;
     display: flex;
-    width: 100%;
-    max-width: 215px;
+    width: auto;
     margin: 0 auto;
     padding: 0;
     background: none;
@@ -237,8 +236,9 @@ h1 {
 .cs-content {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 13px 20px;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 24px;
     width: 100%;
     background: linear-gradient(135deg, #5c3a1e 0%, #3d2410 60%, #2e1a0c 100%);
     border: 1px solid rgba(180, 120, 60, 0.25);
@@ -252,44 +252,44 @@ body.light-mode .cs-content {
 
 .cs-icon-wrap {
     flex-shrink: 0;
-    width: 30px;
-    height: 30px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.9);
 }
 
-.cs-rings {
-    width: 30px;
-    height: 30px;
+.cs-viewfinder {
+    width: 22px;
+    height: 22px;
 }
 
 .cs-text {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 2px;
 }
 
 .cs-label {
-    font-size: 0.92rem;
-    font-weight: 600;
+    font-size: 0.88rem;
+    font-weight: 400;
     color: #ffffff;
     letter-spacing: 0.01em;
     line-height: 1.1;
 }
 
 .cs-sub {
-    font-size: 0.66rem;
-    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
     letter-spacing: 0.03em;
     line-height: 1;
 }
 
 .upload-button,
 .manual-button {
-    width: 150px;
-    padding: 9px 22px;
+    width: auto;
+    padding: 5px 14px;
     background: linear-gradient(
         160deg,
         rgba(60, 32, 10, 0.35) 0%,
@@ -297,16 +297,16 @@ body.light-mode .cs-content {
     );
     color: var(--text-primary);
     border: 1px solid rgba(212, 165, 116, 0.12);
-    border-radius: 12px;
+    border-radius: 8px;
     font-family: 'Sora', sans-serif;
-    font-size: 0.765rem;
+    font-size: 0.62rem;
     font-weight: 200;
     letter-spacing: 0.02em;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
     transition: all 0.25s ease;
     white-space: nowrap;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(212, 165, 116, 0.06);
@@ -363,11 +363,11 @@ body.light-mode .manual-button:hover {
 }
 
 .action-buttons .btn svg {
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    min-height: 18px !important;
-    stroke-width: 1.2 !important; 
+    width: 13px !important;
+    height: 13px !important;
+    min-width: 13px !important;
+    min-height: 13px !important;
+    stroke-width: 1.3 !important; 
     margin: 0 !important;
     display: inline-block;
     vertical-align: middle;
@@ -1885,9 +1885,9 @@ body.light-mode .onboarding-icon {
 
     .upload-button,
     .manual-button {
-        width: 130px;
-        padding: 8px 18px;
-        font-size: 0.7rem;
+        width: auto;
+        padding: 5px 12px;
+        font-size: 0.6rem;
     }
 
     .empty-state {
