@@ -1,20 +1,26 @@
 // ==========================================
 // GRINDER & METHOD SELECTION (V5.2)
-// Dropdown-based, 8 grinders + 3 methods
+// Chip + Bottom-Sheet Picker
 // ==========================================
 
 import { preferredGrinder, setPreferredGrinder, preferredMethod, setPreferredMethod } from './state.js';
 
-// ── Grinder metadata ──
+// ── Grinder metadata (alphabetical) ──
 const GRINDER_INFO = {
-    comandante_mk4: { label: 'Comandante MK4',   short: 'C40 MK4' },
-    comandante_mk3: { label: 'Comandante MK3',   short: 'C40 MK3' },
-    fellow_gen2:    { label: 'Fellow Ode Gen 2',  short: 'Ode Gen 2' },
-    fellow_gen1:    { label: 'Fellow Ode Gen 1',  short: 'Ode Gen 1' },
-    timemore_s3:    { label: 'Timemore S3',       short: 'S3' },
-    timemore_c2:    { label: 'Timemore C2',       short: 'C2' },
-    '1zpresso':     { label: '1Zpresso JX',       short: 'JX' },
-    baratza:        { label: 'Baratza Encore',     short: 'Encore' },
+    '1zpresso':     { label: '1Zpresso JX' },
+    baratza:        { label: 'Baratza Encore' },
+    comandante_mk3: { label: 'Comandante C40 MK3' },
+    comandante_mk4: { label: 'Comandante C40 MK4' },
+    fellow_gen1:    { label: 'Fellow Ode Gen 1' },
+    fellow_gen2:    { label: 'Fellow Ode Gen 2' },
+    timemore_c2:    { label: 'Timemore Chestnut C2' },
+    timemore_s3:    { label: 'Timemore Sculptor 078S' },
+};
+
+const METHOD_INFO = {
+    aeropress: { label: 'AeroPress' },
+    chemex:    { label: 'Chemex' },
+    v60:       { label: 'V60' },
 };
 
 // ── Migration: old keys → new ──
@@ -25,93 +31,134 @@ const GRINDER_MIGRATION = {
 };
 
 function migrateGrinderPreference() {
-    const current = preferredGrinder;
-    if (GRINDER_MIGRATION[current]) {
-        setPreferredGrinder(GRINDER_MIGRATION[current]);
-        return true;
+    if (GRINDER_MIGRATION[preferredGrinder]) {
+        setPreferredGrinder(GRINDER_MIGRATION[preferredGrinder]);
     }
-    return false;
 }
 
-/**
- * Initialize both dropdowns
- */
+// ==========================================
+// INIT
+// ==========================================
+
 export function initGlobalGrinder() {
     migrateGrinderPreference();
 
-    const grinderSelect = document.getElementById('grinder-select');
-    const methodSelect = document.getElementById('method-select');
+    updateChipLabels();
 
-    if (!grinderSelect || !methodSelect) {
-        console.warn('⚠️ Grinder/Method selects not found in DOM');
-        return;
-    }
+    const grinderChip = document.getElementById('grinder-chip');
+    const methodChip = document.getElementById('method-chip');
+    if (grinderChip) grinderChip.addEventListener('click', openGrinderPicker);
+    if (methodChip) methodChip.addEventListener('click', openMethodPicker);
 
-    // Set initial values
-    grinderSelect.value = preferredGrinder;
-    methodSelect.value = preferredMethod || 'v60';
+    const closeGrinder = document.getElementById('closeGrinderBtn');
+    const closeMethod = document.getElementById('closeMethodBtn');
+    if (closeGrinder) closeGrinder.addEventListener('click', closeGrinderPicker);
+    if (closeMethod) closeMethod.addEventListener('click', closeMethodPicker);
 
-    // Fallback if stored value doesn't match any option
-    if (!grinderSelect.value || grinderSelect.selectedIndex === -1) {
-        grinderSelect.value = 'fellow_gen2';
-        setPreferredGrinder('fellow_gen2');
-    }
+    const grinderModal = document.getElementById('grinderModal');
+    const methodModal = document.getElementById('methodModal');
+    if (grinderModal) grinderModal.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeGrinderPicker(); });
+    if (methodModal) methodModal.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeMethodPicker(); });
 
-    // Bind event listeners
-    grinderSelect.addEventListener('change', (e) => switchGrinder(e.target.value));
-    methodSelect.addEventListener('change', (e) => switchMethod(e.target.value));
+    document.querySelectorAll('#grinder-picker-list .picker-option').forEach(btn => {
+        btn.addEventListener('click', () => selectGrinder(btn.dataset.value));
+    });
+    document.querySelectorAll('#method-picker-list .picker-option').forEach(btn => {
+        btn.addEventListener('click', () => selectMethod(btn.dataset.value));
+    });
 }
 
-/**
- * Switch grinder preference → re-render cards
- */
-export async function switchGrinder(grinder) {
-    setPreferredGrinder(grinder);
+// ==========================================
+// CHIP LABELS
+// ==========================================
+
+function updateChipLabels() {
+    const gLabel = document.getElementById('grinder-chip-label');
+    const mLabel = document.getElementById('method-chip-label');
+    if (gLabel) gLabel.textContent = getGrinderLabel(preferredGrinder);
+    if (mLabel) mLabel.textContent = getMethodLabel(preferredMethod || 'v60');
+}
+
+// ==========================================
+// GRINDER PICKER
+// ==========================================
+
+function openGrinderPicker() {
+    markActiveOption('grinder-picker-list', preferredGrinder);
+    document.getElementById('grinderModal').classList.add('active');
+}
+
+function closeGrinderPicker() {
+    document.getElementById('grinderModal').classList.remove('active');
+}
+
+async function selectGrinder(value) {
+    setPreferredGrinder(value);
+    updateChipLabels();
+    closeGrinderPicker();
 
     if (typeof window.backendSync !== 'undefined' && window.backendSync.syncGrinderPreference) {
-        await window.backendSync.syncGrinderPreference(grinder);
+        await window.backendSync.syncGrinderPreference(value);
     }
 
-    if (!switchGrinder._renderCoffees) {
+    if (!selectGrinder._renderCoffees) {
         const module = await import('./coffee-list.js');
-        switchGrinder._renderCoffees = module.renderCoffees;
+        selectGrinder._renderCoffees = module.renderCoffees;
     }
-    switchGrinder._renderCoffees();
+    selectGrinder._renderCoffees();
 
     if (navigator.vibrate) navigator.vibrate(10);
-    console.log(`✓ Grinder → ${grinder}`);
+    console.log(`✓ Grinder → ${value}`);
 }
 
-/**
- * Switch brew method preference → re-render cards
- */
-export async function switchMethod(method) {
-    setPreferredMethod(method);
+// ==========================================
+// METHOD PICKER
+// ==========================================
+
+function openMethodPicker() {
+    markActiveOption('method-picker-list', preferredMethod || 'v60');
+    document.getElementById('methodModal').classList.add('active');
+}
+
+function closeMethodPicker() {
+    document.getElementById('methodModal').classList.remove('active');
+}
+
+async function selectMethod(value) {
+    setPreferredMethod(value);
+    updateChipLabels();
+    closeMethodPicker();
 
     if (typeof window.backendSync !== 'undefined' && window.backendSync.syncMethodPreference) {
-        await window.backendSync.syncMethodPreference(method);
+        await window.backendSync.syncMethodPreference(value);
     }
 
-    if (!switchMethod._renderCoffees) {
+    if (!selectMethod._renderCoffees) {
         const module = await import('./coffee-list.js');
-        switchMethod._renderCoffees = module.renderCoffees;
+        selectMethod._renderCoffees = module.renderCoffees;
     }
-    switchMethod._renderCoffees();
+    selectMethod._renderCoffees();
 
     if (navigator.vibrate) navigator.vibrate(10);
-    console.log(`✓ Method → ${method}`);
+    console.log(`✓ Method → ${value}`);
 }
 
-/**
- * Get human-readable grinder label
- */
+// ==========================================
+// HELPERS
+// ==========================================
+
+function markActiveOption(listId, activeValue) {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    list.querySelectorAll('.picker-option').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === activeValue);
+    });
+}
+
 export function getGrinderLabel(grinder) {
     return GRINDER_INFO[grinder]?.label || GRINDER_INFO.fellow_gen2.label;
 }
 
-/**
- * Get short grinder label (for tight spaces)
- */
-export function getGrinderShortLabel(grinder) {
-    return GRINDER_INFO[grinder]?.short || GRINDER_INFO.fellow_gen2.short;
+function getMethodLabel(method) {
+    return METHOD_INFO[method]?.label || 'V60';
 }

@@ -17,8 +17,6 @@ export function getBrewRecommendations(coffee) {
     const cultivarAdjusted = adjustForCultivar(altitudeAdjusted, coffee.cultivar);
     const originAdjusted = adjustForOrigin(cultivarAdjusted, coffee.origin);
     const waterAdjusted = adjustForWaterHardness(originAdjusted);
-
-    // Method-specific adjustments (grind, ratio, temp)
     const finalParams = adjustForMethod(waterAdjusted, method);
 
     const grindSetting = getGrinderValue(finalParams.grindBase, grinder, coffee.grindOffset);
@@ -36,7 +34,6 @@ export function getBrewRecommendations(coffee) {
         steps,
         targetTime: finalParams.targetTime,
         method,
-        methodLabel: getMethodLabel(method),
         notes: generateBrewNotes(coffee, finalParams, method)
     };
 }
@@ -47,8 +44,6 @@ export function getBrewRecommendations(coffee) {
 
 function adjustForMethod(params, method) {
     if (method === 'chemex') {
-        // Chemex: thicker filter → coarser grind (+3 Comandante), slightly higher ratio
-        // Longer brew time, bigger pours
         return {
             ...params,
             grindBase: {
@@ -61,10 +56,7 @@ function adjustForMethod(params, method) {
             brewStyle: params.brewStyle
         };
     }
-
     if (method === 'aeropress') {
-        // AeroPress: finer grind (-3 Comandante), lower ratio (more concentrated)
-        // Full immersion, shorter steep, inverted method
         return {
             ...params,
             grindBase: {
@@ -77,15 +69,7 @@ function adjustForMethod(params, method) {
             brewStyle: params.brewStyle
         };
     }
-
-    // V60: no adjustments, this is the baseline
     return params;
-}
-
-function getMethodLabel(method) {
-    if (method === 'chemex') return 'Chemex';
-    if (method === 'aeropress') return 'AeroPress';
-    return 'V60';
 }
 
 // ==========================================
@@ -130,7 +114,6 @@ function getProcessingBaseParams(process) {
     if (p.includes('natural')) {
         return { grindBase: { comandante: 25, fellow: 4.1 }, tempBase: { min: 93, max: 94 }, ratio: 16.7, brewStyle: 'fruity', targetTime: '2:45-3:15', category: 'natural' };
     }
-    // Default: washed
     return { grindBase: { comandante: 22, fellow: 3.5 }, tempBase: { min: 92, max: 93 }, ratio: 16, brewStyle: 'standard', targetTime: '2:30-3:00', category: 'washed' };
 }
 
@@ -221,7 +204,7 @@ function adjustForWaterHardness(params) {
 }
 
 // ==========================================
-// GRINDER VALUE (8 grinders)
+// GRINDER VALUE (8 grinders + legacy fallback)
 // ==========================================
 
 function getGrinderValue(grindBase, grinder, offset) {
@@ -283,7 +266,6 @@ function getGrinderValue(grindBase, grinder, offset) {
 function generateBrewSteps(amount, ratio, brewStyle, method) {
     const waterAmount = Math.round(amount * ratio);
 
-    // ── AeroPress (inverted method) ──
     if (method === 'aeropress') {
         const bloom = Math.round(amount * 2);
         return [
@@ -294,7 +276,6 @@ function generateBrewSteps(amount, ratio, brewStyle, method) {
         ];
     }
 
-    // ── Chemex ──
     if (method === 'chemex') {
         const bloom = Math.round(amount * 3);
         return [
@@ -305,7 +286,7 @@ function generateBrewSteps(amount, ratio, brewStyle, method) {
         ];
     }
 
-    // ── V60 (default — style-dependent) ──
+    // V60 (default — style-dependent)
     const bloom = Math.round(amount * (brewStyle === 'slow' ? 3.5 : 3));
 
     if (brewStyle === 'slow') {
@@ -324,7 +305,6 @@ function generateBrewSteps(amount, ratio, brewStyle, method) {
             { time: '1:50', action: `To ${waterAmount}g: Final pour` }
         ];
     }
-    // Standard & controlled
     return [
         { time: '0:00', action: `Bloom: ${bloom}g water, 30-40 sec` },
         { time: '0:40', action: `To ${Math.round(waterAmount * 0.5)}g: Pour evenly` },
@@ -344,7 +324,6 @@ function formatTemp(tempBase) {
 function generateBrewNotes(coffee, params, method) {
     const notes = [];
 
-    // Method note
     if (method === 'chemex') {
         notes.push('Chemex - thick paper filter, clean cup, coarser grind');
     } else if (method === 'aeropress') {
@@ -376,7 +355,7 @@ function generateBrewNotes(coffee, params, method) {
         if (params.originAdjustment.region === 'africa') notes.push('African origin - floral notes, finer grind');
         else if (params.originAdjustment.region === 'asia') notes.push('Asian origin - earthy body, coarser grind');
     }
-    
+
     const activeHardness = getActiveWaterHardness();
     if (activeHardness) {
         const category = activeHardness.category || getWaterHardnessCategory(activeHardness.value);
