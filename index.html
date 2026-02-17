@@ -129,46 +129,27 @@
             </div>
         </div>
 
-        <!-- ====== GLOBAL GRINDER SELECTOR (sticky) ====== -->
-<div class="global-grinder-selector">
-    <div class="brew-setup-row">
-        <div class="brew-setup-group">
-            <label class="brew-setup-label">Grinder</label>
-            <div class="select-wrapper">
-                <select id="grinder-select" class="brew-setup-select">
-                    <optgroup label="Comandante">
-                        <option value="comandante_mk4">C40 MK4</option>
-                        <option value="comandante_mk3">C40 MK3</option>
-                    </optgroup>
-                    <optgroup label="Fellow">
-                        <option value="fellow_gen2" selected>Ode Gen 2</option>
-                        <option value="fellow_gen1">Ode Gen 1</option>
-                    </optgroup>
-                    <optgroup label="Timemore">
-                        <option value="timemore_s3">Chestnut S3</option>
-                        <option value="timemore_c2">Chestnut C2</option>
-                    </optgroup>
-                    <optgroup label="1Zpresso">
-                        <option value="1zpresso">JX</option>
-                    </optgroup>
-                    <optgroup label="Baratza">
-                        <option value="baratza">Encore</option>
-                    </optgroup>
-                </select>
+        <!-- ====== BREW SETUP — STICKY SELECTOR (V5.2) ====== -->
+        <div class="global-grinder-selector">
+            <div class="brew-chip-row">
+                <button class="brew-chip" id="grinder-chip" aria-label="Choose grinder">
+                    <svg class="brew-chip-icon" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <span class="brew-chip-label" id="grinder-chip-label">Fellow Ode Gen 2</span>
+                    <svg class="brew-chip-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
+                </button>
+                <button class="brew-chip" id="method-chip" aria-label="Choose method">
+                    <svg class="brew-chip-icon" viewBox="0 0 24 24">
+                        <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+                        <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"></path>
+                    </svg>
+                    <span class="brew-chip-label" id="method-chip-label">V60</span>
+                    <svg class="brew-chip-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
+                </button>
             </div>
         </div>
-        <div class="brew-setup-group">
-            <label class="brew-setup-label">Method</label>
-            <div class="select-wrapper">
-                <select id="method-select" class="brew-setup-select">
-                    <option value="v60" selected>V60</option>
-                    <option value="chemex">Chemex</option>
-                    <option value="aeropress">AeroPress</option>
-                </select>
-            </div>
-        </div>
-    </div>
-</div>
         <!-- ====== COFFEE LIST ====== -->
         <div id="coffeeList" class="coffee-list"></div>
         
@@ -312,6 +293,97 @@
                     <div>21–28 °dH: <strong>Hard</strong></div>
                     <div>28+ °dH: <strong>Very hard</strong></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== GRINDER PICKER MODAL ====== -->
+    <div id="grinderModal" class="modal">
+        <div class="modal-content modal-content--narrow">
+            <div class="popup-header-standard">
+                <div class="popup-title-group">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                    </svg>
+                    <h2>Grinder</h2>
+                </div>
+                <button class="close-btn" id="closeGrinderBtn">✕</button>
+            </div>
+            <div class="picker-list" id="grinder-picker-list">
+                <button class="picker-option" data-value="1zpresso">
+                    <span class="picker-option-name">1Zpresso JX</span>
+                    <span class="picker-option-detail">48mm conical · 30 clicks/rot</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="baratza">
+                    <span class="picker-option-name">Baratza Encore</span>
+                    <span class="picker-option-detail">40mm conical · 40 steps</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="comandante_mk3">
+                    <span class="picker-option-name">Comandante C40 MK3</span>
+                    <span class="picker-option-detail">Nitro Blade · Red Clix</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="comandante_mk4">
+                    <span class="picker-option-name">Comandante C40 MK4</span>
+                    <span class="picker-option-detail">Nitro Blade · 40 clicks</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="fellow_gen1">
+                    <span class="picker-option-name">Fellow Ode Gen 1</span>
+                    <span class="picker-option-detail">Original burrs · 64mm flat</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="fellow_gen2">
+                    <span class="picker-option-name">Fellow Ode Gen 2</span>
+                    <span class="picker-option-detail">SSP MP burrs · 64mm flat</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="timemore_c2">
+                    <span class="picker-option-name">Timemore Chestnut C2</span>
+                    <span class="picker-option-detail">Steel conical · 38mm</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="timemore_s3">
+                    <span class="picker-option-name">Timemore Sculptor 078S</span>
+                    <span class="picker-option-detail">S2C burrs · 64mm conical</span>
+                    <span class="picker-check">✓</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== METHOD PICKER MODAL ====== -->
+    <div id="methodModal" class="modal">
+        <div class="modal-content modal-content--narrow">
+            <div class="popup-header-standard">
+                <div class="popup-title-group">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+                        <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"></path>
+                    </svg>
+                    <h2>Brew Method</h2>
+                </div>
+                <button class="close-btn" id="closeMethodBtn">✕</button>
+            </div>
+            <div class="picker-list" id="method-picker-list">
+                <button class="picker-option" data-value="aeropress">
+                    <span class="picker-option-name">AeroPress</span>
+                    <span class="picker-option-detail">Immersion · inverted · 1:15</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="chemex">
+                    <span class="picker-option-name">Chemex</span>
+                    <span class="picker-option-detail">Pour-over · thick filter · 1:16.5</span>
+                    <span class="picker-check">✓</span>
+                </button>
+                <button class="picker-option" data-value="v60">
+                    <span class="picker-option-name">Hario V60</span>
+                    <span class="picker-option-detail">Pour-over · cone · 1:16</span>
+                    <span class="picker-check">✓</span>
+                </button>
             </div>
         </div>
     </div>
