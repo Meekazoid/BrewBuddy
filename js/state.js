@@ -3,7 +3,71 @@
 // ES module · Expose legacy window.* values
 // ==========================================
 
-export let coffees = JSON.parse(localStorage.getItem('coffees') || '[]');
+function safeParseStoredCoffees() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem('coffees') || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.warn('Failed to parse coffees from localStorage. Falling back to empty list.', e);
+    return [];
+  }
+}
+
+export function createStableCoffeeId(coffee = {}, fallbackIndex = 0) {
+  if (coffee.id) return String(coffee.id);
+
+  const normalizedName = String(coffee.name || '').trim().toLowerCase();
+  const normalizedRoaster = String(coffee.roaster || '').trim().toLowerCase();
+  const normalizedOrigin = String(coffee.origin || '').trim().toLowerCase();
+  const stableDate = String(coffee.addedDate || coffee.savedAt || coffee.createdAt || '').trim();
+  const fallbackDate = stableDate || new Date().toISOString();
+  const fallbackSeed = `${normalizedName}|${normalizedRoaster}|${normalizedOrigin}|${fallbackDate}|${fallbackIndex}`;
+  const safeSeed = fallbackSeed.replace(/[^a-z0-9|:-]/g, '');
+
+  return `coffee-${safeSeed || Date.now()}`;
+}
+
+export function normalizeCoffeeRecord(inputCoffee = {}, fallbackIndex = 0) {
+  const coffee = { ...(inputCoffee || {}) };
+  coffee.id = createStableCoffeeId(coffee, fallbackIndex);
+  coffee.feedback = coffee.feedback && typeof coffee.feedback === 'object' ? coffee.feedback : {};
+  coffee.feedbackHistory = Array.isArray(coffee.feedbackHistory) ? coffee.feedbackHistory : [];
+  return coffee;
+}
+
+export function dedupeCoffees(inputCoffees = [], source = 'unknown') {
+  const deduped = [];
+  const seenKeys = new Set();
+  let removed = 0;
+
+  inputCoffees.forEach((rawCoffee, index) => {
+    const hadOriginalId = Boolean(rawCoffee && rawCoffee.id);
+    const coffee = normalizeCoffeeRecord(rawCoffee, index);
+    const fallbackKey = [
+      String(coffee.name || '').trim().toLowerCase(),
+      String(coffee.roaster || '').trim().toLowerCase(),
+      String(coffee.origin || '').trim().toLowerCase(),
+      String(coffee.addedDate || coffee.savedAt || '')
+    ].join('|');
+    const stableKey = hadOriginalId ? String(coffee.id) : (fallbackKey || `index:${index}`);
+
+    if (seenKeys.has(stableKey)) {
+      removed += 1;
+      return;
+    }
+
+    seenKeys.add(stableKey);
+    deduped.push(coffee);
+  });
+
+  if (removed > 0) {
+    console.warn(`⚠️ Deduplication removed ${removed} duplicate coffee entr${removed === 1 ? 'y' : 'ies'} (${source}).`);
+  }
+
+  return deduped;
+}
+
+export let coffees = dedupeCoffees(safeParseStoredCoffees(), 'state-init');
 export let coffeeAmount = parseInt(localStorage.getItem('coffeeAmount')) || 15;
 export let preferredGrinder = localStorage.getItem('preferredGrinder') || 'fellow';
 export let preferredMethod = localStorage.getItem('preferredMethod') || 'v60';
@@ -28,7 +92,7 @@ window.brewTimers = brewTimers;
 window.animationFrames = animationFrames;
 
 export function setCoffees(value) {
-  coffees = value || [];
+  coffees = dedupeCoffees(Array.isArray(value) ? value : [], 'setCoffees');
   try { localStorage.setItem('coffees', JSON.stringify(coffees)); } catch (e) { console.warn('Failed to persist coffees', e); }
   window.coffees = coffees;
 }
@@ -80,7 +144,7 @@ export async function saveCoffeesAndSync() {
 
 export function addCoffee(coffee) {
   if (!coffee) return;
-  coffees = [coffee, ...(coffees || [])];
+  coffees = [normalizeCoffeeRecord(coffee), ...(coffees || [])];
   setCoffees(coffees);
 }
 

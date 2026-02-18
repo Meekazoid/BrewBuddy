@@ -48,6 +48,66 @@ function clearToken() {
 // BACKEND API CALLS
 // ==========================================
 
+
+function createBackendStableCoffeeId(coffee = {}, fallbackIndex = 0) {
+    if (coffee.id) return String(coffee.id);
+
+    const normalizedName = String(coffee.name || '').trim().toLowerCase();
+    const normalizedRoaster = String(coffee.roaster || '').trim().toLowerCase();
+    const normalizedOrigin = String(coffee.origin || '').trim().toLowerCase();
+    const stableDate = String(coffee.addedDate || coffee.savedAt || coffee.createdAt || '').trim();
+    const fallbackDate = stableDate || new Date().toISOString();
+    const fallbackSeed = `${normalizedName}|${normalizedRoaster}|${normalizedOrigin}|${fallbackDate}|${fallbackIndex}`;
+    const safeSeed = fallbackSeed.replace(/[^a-z0-9|:-]/g, '');
+
+    return `coffee-${safeSeed || Date.now()}`;
+}
+
+function normalizeBackendCoffeeRecord(inputCoffee = {}, fallbackIndex = 0) {
+    const coffee = { ...(inputCoffee || {}) };
+    coffee.id = createBackendStableCoffeeId(coffee, fallbackIndex);
+    coffee.feedback = coffee.feedback && typeof coffee.feedback === 'object' ? coffee.feedback : {};
+    coffee.feedbackHistory = Array.isArray(coffee.feedbackHistory) ? coffee.feedbackHistory : [];
+    return coffee;
+}
+
+function dedupeBackendCoffees(inputCoffees = [], source = 'backend') {
+    const deduped = [];
+    const seenKeys = new Set();
+    let removed = 0;
+
+    inputCoffees.forEach((rawCoffee, index) => {
+        const hadOriginalId = Boolean(rawCoffee && rawCoffee.id);
+        const coffee = normalizeBackendCoffeeRecord(rawCoffee, index);
+        const fallbackKey = [
+            String(coffee.name || '').trim().toLowerCase(),
+            String(coffee.roaster || '').trim().toLowerCase(),
+            String(coffee.origin || '').trim().toLowerCase(),
+            String(coffee.addedDate || coffee.savedAt || '')
+        ].join('|');
+        const stableKey = hadOriginalId ? String(coffee.id) : (fallbackKey || `index:${index}`);
+
+        if (seenKeys.has(stableKey)) {
+            removed += 1;
+            return;
+        }
+
+        seenKeys.add(stableKey);
+        deduped.push(coffee);
+    });
+
+    if (removed > 0) {
+        console.warn(`⚠️ Deduplication removed ${removed} duplicate coffee entr${removed === 1 ? 'y' : 'ies'} (${source}).`);
+    }
+
+    return deduped;
+}
+
+function hasFeedbackHistoryCoverage(coffeeList = []) {
+    if (!Array.isArray(coffeeList) || coffeeList.length === 0) return true;
+    return coffeeList.some(coffee => Array.isArray(coffee.feedbackHistory));
+}
+
 async function checkUserStatus() {
     const token = getToken();
     const deviceId = getOrCreateDeviceId();
@@ -101,8 +161,9 @@ async function fetchCoffeesFromBackend() {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            console.log(`📦 ${data.coffees.length} coffees loaded from backend`);
-            return data.coffees;
+            const remoteCoffees = Array.isArray(data.coffees) ? data.coffees : [];
+            console.log(`📦 ${remoteCoffees.length} coffees loaded from backend`);
+            return dedupeBackendCoffees(remoteCoffees, 'fetchCoffeesFromBackend');
         } else {
             console.error('Backend fetch failed:', data.error);
             return null;
@@ -139,7 +200,8 @@ async function syncCoffeesToBackend(coffees) {
             console.log(`☁️ ${data.saved} coffees synced to backend`);
             return true;
         } else {
-            console.error('Sync failed:', data.error);
+            const reason = data?.error || data?.message || 'Unknown backend rejection';
+            console.warn(`⚠️ /api/coffees rejected payload or sync failed (${response.status}): ${reason}`);
             return false;
         }
     } catch (error) {
@@ -321,11 +383,26 @@ async function initBackendSync() {
             
             // Load coffees from backend
             const remoteCoffees = await fetchCoffeesFromBackend();
-            if (remoteCoffees) {
-                // Update local list
-                window.coffees = remoteCoffees;
-                localStorage.setItem('coffees', JSON.stringify(window.coffees));
-                if (typeof renderCoffees === 'function') renderCoffees();
+            if (Array.isArray(remoteCoffees)) {
+                const localCoffees = (() => {
+                    try {
+                        const parsed = JSON.parse(localStorage.getItem('coffees') || '[]');
+                        return Array.isArray(parsed) ? parsed : [];
+                    } catch (_) {
+                        return [];
+                    }
+                })();
+
+                const normalizedRemote = dedupeBackendCoffees(remoteCoffees, 'initBackendSync-remote');
+                const remoteLooksIncomplete = normalizedRemote.length > 0 && !hasFeedbackHistoryCoverage(remoteCoffees);
+
+                if (remoteLooksIncomplete && localCoffees.length > 0) {
+                    console.warn('⚠️ Remote coffees seem to miss feedbackHistory on initial sync. Keeping local data to avoid accidental overwrite.');
+                } else {
+                    window.coffees = normalizedRemote;
+                    localStorage.setItem('coffees', JSON.stringify(window.coffees));
+                    if (typeof renderCoffees === 'function') renderCoffees();
+                }
             }
         } else {
             console.log('ℹ️ No valid token available. Please enter in Settings.');

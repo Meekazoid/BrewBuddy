@@ -2,7 +2,7 @@
 // MANUAL ENTRY
 // Manual coffee entry form
 // ==========================================
-import { coffees, saveCoffeesAndSync } from './state.js';
+import { addCoffee, saveCoffeesAndSync } from './state.js';
 import { renderCoffees } from './coffee-list.js';
 import { showMessage } from './messages.js';
 
@@ -20,7 +20,7 @@ export async function saveCoffeeManual() {
         return;
     }
 
-    coffees.unshift({
+    addCoffee({
         name, origin, process,
         cultivar: cultivar || 'Unknown',
         altitude: altitude || '1500',
