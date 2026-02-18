@@ -256,67 +256,41 @@ function getGrinderValue(grindBase, grinder, offset) {
     const o = offset || 0;
     const base = grindBase.comandante;
 
-    switch (grinder) {
-        // Comandante C40 MK3/MK4: ~30µm/click
-        case 'comandante_mk4':
-        case 'comandante_mk3':
-            return `${Math.max(1, Math.round(base + o))} clicks`;
+    // Calibration matrix v1: centralizes scaling and offset sensitivity per grinder.
+    const profiles = {
+        comandante_mk4: { type: 'clicks', baseFactor: 1.0, offsetFactor: 1.0, min: 1 },
+        comandante_mk3: { type: 'clicks', baseFactor: 1.0, offsetFactor: 1.0, min: 1 },
+        comandante: { type: 'clicks', baseFactor: 1.0, offsetFactor: 1.0, min: 1 },
+        fellow_gen2: { type: 'ode', baseRef: 'fellow2', offsetFactor: 0.1, min: 0.1 },
+        fellow_gen1: { type: 'ode', baseRef: 'fellow1', offsetFactor: 0.1, min: 0.1 },
+        fellow: { type: 'ode', baseRef: 'fellow2', offsetFactor: 0.1, min: 0.1 },
+        timemore_s3: { type: 'clicks', baseFactor: 2.0, offsetFactor: 2.0, min: 1 },
+        timemore_c2: { type: 'clicks', baseFactor: 0.82, offsetFactor: 0.82, min: 1 },
+        timemore: { type: 'clicks', baseFactor: 2.0, offsetFactor: 2.0, min: 1 },
+        '1zpresso': { type: 'rot', baseFactor: 1.1 / 30, offsetFactor: 1.1 / 30, min: 0.1 },
+        baratza: { type: 'encore', baseFactor: 0.8, offsetFactor: 0.8, min: 1, max: 40 }
+    };
 
-        // Fellow Ode Gen 2: SSP MP, ~25µm/step
-        case 'fellow_gen2': {
-            const val = grindBase.fellow + o * 0.1;
-            return Math.max(0.1, val).toFixed(1);
-        }
+    const profile = profiles[grinder] || profiles.fellow;
 
-        // Fellow Ode Gen 1: original burrs, ~50µm/step
-        case 'fellow_gen1': {
-            const val = (grindBase.fellow - 1.5) + o * 0.1;
-            return Math.max(0.1, val).toFixed(1);
-        }
-
-        // Timemore Chestnut S3: 15µm/click, 42mm S2C890
-        // Conversion: Comandante µm = base × 30, S3 clicks = µm / 15
-        // Factor: base × (30/15) = base × 2.0
-        // V60 check: 22 × 2.0 = 44 → range 50-80 (low end ok as starting point)
-        case 'timemore_s3': {
-            const val = Math.round(base * 2.0 + o * 2.0);
-            return `${Math.max(1, val)} clicks`;
-        }
-
-        // Timemore Chestnut C2: ~80µm/click, 38mm conical
-        // Conversion: Comandante µm = base × 30, C2 clicks = µm / 80
-        // Factor: base × (30/80) ≈ base × 0.375
-        // V60 check: 22 × 0.375 ≈ 8 → but sources say 15-20
-        // Using empirical: C2 V60 ≈ 18 clicks for Comandante 22
-        // Factor: 18/22 ≈ 0.82
-        case 'timemore_c2': {
-            const val = Math.round(base * 0.82 + o * 0.82);
-            return `${Math.max(1, val)} clicks`;
-        }
-
-        // 1Zpresso JX: 48mm conical, 30 clicks/rotation
-        case '1zpresso': {
-            const rotations = base / 30 * 1.1 + o * (1.1 / 30);
-            return `${Math.max(0.1, rotations).toFixed(1)} rot`;
-        }
-
-        // Baratza Encore: 40mm conical, 40 stepped settings
-        case 'baratza': {
-            const val = Math.round(base * 0.8 + o);
-            return `${Math.max(1, Math.min(40, val))}`;
-        }
-
-        // Legacy keys (pre-migration fallback)
-        case 'comandante':
-            return `${Math.max(1, Math.round(base + o))} clicks`;
-        case 'timemore':
-            return `${Math.max(1, Math.round(base * 2.0 + o * 2.0))} clicks`;
-        case 'fellow':
-        default: {
-            const val = grindBase.fellow + o * 0.1;
-            return Math.max(0.1, val).toFixed(1);
-        }
+    if (profile.type === 'ode') {
+        const baseValue = profile.baseRef === 'fellow1' ? (grindBase.fellow - 1.5) : grindBase.fellow;
+        const val = baseValue + o * profile.offsetFactor;
+        return Math.max(profile.min, val).toFixed(1);
     }
+
+    if (profile.type === 'rot') {
+        const rotations = base * profile.baseFactor + o * profile.offsetFactor;
+        return `${Math.max(profile.min, rotations).toFixed(1)} rot`;
+    }
+
+    if (profile.type === 'encore') {
+        const val = Math.round(base * profile.baseFactor + o * profile.offsetFactor);
+        return `${Math.max(profile.min, Math.min(profile.max, val))}`;
+    }
+
+    const val = Math.round(base * profile.baseFactor + o * profile.offsetFactor);
+    return `${Math.max(profile.min, val)} clicks`;
 }
 
 // ==========================================
