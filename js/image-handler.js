@@ -4,7 +4,7 @@
 // ==========================================
 
 import { CONFIG } from './config.js';
-import { coffees, saveCoffeesAndSync } from './state.js';
+import { addCoffee, saveCoffeesAndSync } from './state.js';
 import { renderCoffees } from './coffee-list.js';
 import { showMessage } from './messages.js';
 
@@ -163,7 +163,7 @@ export async function processImageUpload(file, uploadBtn) {
         }
 
         const coffeeInfo = await analyzeCoffeeImage(imageData, mediaType);
-        coffees.unshift(coffeeInfo);
+        addCoffee(coffeeInfo);
         saveCoffeesAndSync();
         renderCoffees();
         showMessage('success', '✓ Coffee added successfully!');
