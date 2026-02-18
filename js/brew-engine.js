@@ -17,7 +17,8 @@ export function getBrewRecommendations(coffee) {
     const cultivarAdjusted = adjustForCultivar(altitudeAdjusted, coffee.cultivar);
     const originAdjusted = adjustForOrigin(cultivarAdjusted, coffee.origin);
     const waterAdjusted = adjustForWaterHardness(originAdjusted);
-    const finalParams = adjustForMethod(waterAdjusted, method);
+    const roastAdjusted = adjustForRoastAge(waterAdjusted, coffee.roastDate);
+    const finalParams = adjustForMethod(roastAdjusted, method);
 
     const grindSetting = getGrinderValue(finalParams.grindBase, grinder, coffee.grindOffset);
     const temperature = coffee.customTemp || formatTemp(finalParams.tempBase);
@@ -35,6 +36,42 @@ export function getBrewRecommendations(coffee) {
         targetTime: finalParams.targetTime,
         method,
         notes: generateBrewNotes(coffee, finalParams, method)
+    };
+}
+
+function adjustForRoastAge(params, roastDate) {
+    if (!roastDate) {
+        return {
+            ...params,
+            roastAdjustment: { tempAdjust: 0, roastAgeDays: null, stage: 'unknown' }
+        };
+    }
+
+    const roastTime = new Date(roastDate).getTime();
+    if (Number.isNaN(roastTime)) {
+        return {
+            ...params,
+            roastAdjustment: { tempAdjust: 0, roastAgeDays: null, stage: 'invalid' }
+        };
+    }
+
+    const roastAgeDays = Math.floor((Date.now() - roastTime) / (1000 * 60 * 60 * 24));
+    let tempAdjust = 0;
+    let stage = 'sweet-spot';
+
+    // Micro-adjust only (max ±1°C) to keep processing/water/method dominant
+    if (roastAgeDays < 7) {
+        tempAdjust = -1;
+        stage = 'resting';
+    } else if (roastAgeDays >= 30) {
+        tempAdjust = +1;
+        stage = 'fading';
+    }
+
+    return {
+        ...params,
+        tempBase: { min: params.tempBase.min + tempAdjust, max: params.tempBase.max + tempAdjust },
+        roastAdjustment: { tempAdjust, roastAgeDays, stage }
     };
 }
 
