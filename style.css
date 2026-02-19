@@ -194,7 +194,7 @@ h1 {
    ========================================== */
 
 .add-section {
-    background: var(--bg-secondary);
+    background: color-mix(in srgb, var(--bg-secondary) 88%, #000 12%);
     border-radius: 16px;
     padding: 24px;
     margin-bottom: 40px;
@@ -248,6 +248,10 @@ h1 {
 body.light-mode .cs-content {
     background: linear-gradient(135deg, #7a4a22 0%, #5c3318 60%, #4a2810 100%);
     border-color: rgba(200, 140, 70, 0.3);
+}
+
+body.light-mode .add-section {
+    background: var(--bg-secondary);
 }
 
 .cs-icon-wrap {
@@ -532,6 +536,12 @@ button:hover {
 
 #grinder-chip .brew-chip-label {
     font-size: 0.76rem;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+#method-chip .brew-chip-label {
+    font-size: 0.78rem;
     overflow: visible;
     text-overflow: clip;
 }
@@ -1482,9 +1492,9 @@ body.light-mode .step-progress-bar {
 }
 
 .feedback-section h4 {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
     color: var(--text-primary);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1494,40 +1504,42 @@ body.light-mode .step-progress-bar {
 }
 
 .feedback-cupping-note {
-    margin-top: -4px;
-    margin-bottom: 16px;
-    font-size: 0.78rem;
+    margin-top: -2px;
+    margin-bottom: 14px;
+    font-size: 0.75rem;
     color: var(--text-secondary);
-    padding: 10px 12px;
-    border-radius: 8px;
-    background: var(--bg-secondary);
-    border: 1px dashed var(--border);
+    white-space: nowrap;
 }
 
 .feedback-label {
     display: block;
-    margin-bottom: 10px;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+    font-size: 0.76rem;
     font-weight: 500;
 }
 
 .feedback-scale {
     display: flex;
-    gap: 6px;
+    gap: 5px;
 }
 
 .scale-option {
     flex: 1;
-    padding: 10px 6px;
+    padding: 7px 6px;
     background: var(--bg-secondary);
-    border: 2px solid var(--border);
-    border-radius: 8px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    line-height: 1;
     cursor: pointer;
     transition: all 0.2s;
-    color: var(--text-secondary);
+    color: #bdbdbd;
+}
+
+body.light-mode .scale-option {
+    color: #666;
 }
 
 .scale-option:hover {

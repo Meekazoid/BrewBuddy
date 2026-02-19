@@ -146,7 +146,7 @@ export function renderCoffeeCard(coffee, index) {
                 
                 <div class="feedback-section">
                     <h4>Brew Feedback</h4>
-                    <div class="feedback-cupping-note">Cupping-style quick rating (low / balanced / high).</div>
+                    <div class="feedback-cupping-note">Cupping-style quick rating</div>
                     <div class="feedback-group">
                         <div class="feedback-label">Bitterness</div>
                         <div class="feedback-scale">
