@@ -1541,7 +1541,7 @@ body.light-mode .step-progress-bar {
 .feedback-slider-track-layer {
     position: relative;
     height: 18px;
-    width: 75%;
+    width: 87%;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -1648,7 +1648,7 @@ body.light-mode .step-progress-bar {
 }
 
 .feedback-slider-labels {
-    width: 75%;
+    width: 87%;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
