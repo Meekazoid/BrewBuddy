@@ -504,7 +504,8 @@ button:hover {
 }
 
 .brew-chip-group:last-child {
-    flex: 0.75;
+    flex: 1;
+    min-width: 140px;
 }
 
 /* ── Individual Chip (tappable) ── */
@@ -548,10 +549,11 @@ button:hover {
 }
 
 #method-chip .brew-chip-label {
-    font-size: 0.78rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 6px;
+    font-size: 0.74rem;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+    padding-right: 2px;
 }
 
 .brew-chip-caret {
@@ -1039,23 +1041,25 @@ body.light-mode .freshness-badge-inline .freshness-badge.fading {
 }
 
 .roast-label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--text-secondary);
     flex-shrink: 0;
 }
 
 .roast-date-input {
-    width: fit-content;
-    min-width: 130px;
-    max-width: 130px;
-    padding: 6px 8px;
+    width: 100%;
+    min-width: 148px;
+    max-width: 172px;
+    height: 34px;
+    padding: 4px 8px;
     background: var(--bg-secondary);
-    border: 1px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent 20%);
     border-radius: 8px;
     color: var(--text-primary);
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-family: inherit;
+    line-height: 1;
     transition: all 0.2s;
     cursor: pointer;
 }
@@ -1530,7 +1534,8 @@ body.light-mode .step-progress-bar {
 .feedback-scale-wrap {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
+    position: relative;
 }
 
 .feedback-slider {
@@ -1562,10 +1567,10 @@ body.light-mode .step-progress-bar {
     -webkit-appearance: none;
     width: 18px;
     height: 18px;
-    border-radius: 50%;
-    border: 2px solid #6d3e1f;
-    background: #8b5a2b;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+    border-radius: 5px;
+    border: 1.5px solid #6d3e1f;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
     margin-top: -7.5px;
     pointer-events: all;
     cursor: grab;
@@ -1575,21 +1580,64 @@ body.light-mode .step-progress-bar {
 .feedback-slider::-moz-range-thumb {
     width: 18px;
     height: 18px;
-    border-radius: 50%;
-    border: 2px solid #6d3e1f;
-    background: #8b5a2b;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+    border-radius: 5px;
+    border: 1.5px solid #6d3e1f;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
     pointer-events: all;
     cursor: grab;
 }
 
-.feedback-slider-labels {
+.feedback-slider-marks {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: -13px;
+    padding: 0 1px;
+    pointer-events: none;
+}
+
+.feedback-slider-mark {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--bg-card);
+    border: 1px solid color-mix(in srgb, var(--accent) 70%, #fff 30%);
+}
+
+.feedback-slider-labels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
     font-size: 0.64rem;
     font-weight: 300;
     text-transform: lowercase;
     color: color-mix(in srgb, var(--text-secondary) 78%, #fff 22%);
+}
+
+.feedback-slider-labels span:nth-child(1) {
+    text-align: left;
+}
+
+.feedback-slider-labels span:nth-child(2) {
+    text-align: center;
+}
+
+.feedback-slider-labels span:nth-child(3) {
+    text-align: right;
+}
+
+body.light-mode .feedback-slider::-webkit-slider-thumb {
+    border-color: #8b5a2b;
+}
+
+body.light-mode .feedback-slider::-moz-range-thumb {
+    border-color: #8b5a2b;
+}
+
+body.light-mode .feedback-slider-mark {
+    border-color: color-mix(in srgb, #8b5a2b 65%, #ffffff 35%);
 }
 
 body.light-mode .feedback-slider-labels {
@@ -2179,11 +2227,13 @@ body.light-mode .onboarding-icon {
     .feedback-slider::-webkit-slider-thumb {
         width: 16px;
         height: 16px;
+        border-radius: 4px;
     }
 
     .feedback-slider::-moz-range-thumb {
         width: 16px;
         height: 16px;
+        border-radius: 4px;
     }
 
     .feedback-slider-labels {
