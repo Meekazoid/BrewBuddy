@@ -1537,6 +1537,20 @@ body.light-mode .step-progress-bar {
     flex-direction: column;
     gap: 7px;
     position: relative;
+    overflow: visible;
+}
+
+.feedback-scale-wrap::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 1.5px;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--accent);
+    z-index: 1;
+    pointer-events: none;
 }
 
 .feedback-slider {
@@ -1555,14 +1569,14 @@ body.light-mode .step-progress-bar {
 .feedback-slider::-webkit-slider-runnable-track {
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(var(--accent), var(--accent));
+    background: transparent;
     pointer-events: none;
 }
 
 .feedback-slider::-moz-range-track {
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(var(--accent), var(--accent));
+    background: transparent;
     pointer-events: none;
 }
 
@@ -1592,23 +1606,36 @@ body.light-mode .step-progress-bar {
 }
 
 .feedback-slider-marks {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 1.5px;
     width: 100%;
-    margin-top: -13px;
-    padding: 0 1px;
+    height: 0;
     pointer-events: none;
-    position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .feedback-slider-mark {
+    position: absolute;
+    top: 0;
     width: 9px;
     height: 9px;
     border-radius: 999px;
-    background: var(--bg-card);
-    border: 1px solid color-mix(in srgb, var(--accent) 70%, #fff 30%);
+    background: var(--accent);
+    transform: translate(-50%, -50%);
+}
+
+.feedback-slider-mark:nth-child(1) {
+    left: 0;
+}
+
+.feedback-slider-mark:nth-child(2) {
+    left: 50%;
+}
+
+.feedback-slider-mark:nth-child(3) {
+    left: 100%;
 }
 
 .feedback-slider-labels {
@@ -1641,9 +1668,6 @@ body.light-mode .feedback-slider::-moz-range-thumb {
     border-color: #8b5a2b;
 }
 
-body.light-mode .feedback-slider-mark {
-    border-color: color-mix(in srgb, #8b5a2b 65%, #ffffff 35%);
-}
 
 body.light-mode .feedback-slider-labels {
     color: #7a7a7a;
