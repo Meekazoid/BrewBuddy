@@ -164,8 +164,14 @@ export function renderCoffeeCard(coffee, index) {
                                         data-feedback-slider="${index}-${key}"
                                         oninput="event.stopPropagation(); updateFeedbackSlider(${index}, '${key}', this.value);"
                                         onclick="event.stopPropagation();">
+                                    <div class="feedback-slider-marks" aria-hidden="true">
+                                        <span class="feedback-slider-mark"></span>
+                                        <span class="feedback-slider-mark"></span>
+                                        <span class="feedback-slider-mark"></span>
+                                    </div>
                                     <div class="feedback-slider-labels" aria-hidden="true">
                                         <span>low</span>
+                                        <span>balanced</span>
                                         <span>high</span>
                                     </div>
                                 </div>

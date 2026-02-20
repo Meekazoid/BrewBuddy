@@ -6,6 +6,16 @@
 import { coffees, saveCoffeesAndSync, sanitizeHTML } from './state.js';
 import { getBrewRecommendations } from './brew-engine.js';
 
+const suggestionHideTimers = new Map();
+
+function clearSuggestionHideTimer(index) {
+    const existing = suggestionHideTimers.get(index);
+    if (existing) {
+        clearTimeout(existing);
+        suggestionHideTimers.delete(index);
+    }
+}
+
 function sliderValueToFeedback(value) {
     if (Number(value) <= 0) return 'low';
     if (Number(value) >= 2) return 'high';
@@ -49,6 +59,8 @@ function generateSuggestion(index) {
     const feedback = coffee.feedback || {};
     const suggestionDiv = document.getElementById(`suggestion-${index}`);
     if (!suggestionDiv) return;
+
+    clearSuggestionHideTimer(index);
 
     let suggestions = [];
     let grindOffsetDelta = 0;
@@ -117,6 +129,20 @@ function generateSuggestion(index) {
     if (suggestions.length === 0 || allBalanced) {
         suggestionDiv.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--text-secondary);">✓ Perfect! No adjustments needed.</div>`;
         suggestionDiv.classList.remove('hidden');
+
+        const hideTimer = setTimeout(() => {
+            const currentCoffee = coffees[index];
+            if (!currentCoffee) return;
+            const currentFeedback = currentCoffee.feedback || {};
+            const stillBalanced = ['bitterness', 'sweetness', 'acidity', 'body']
+                .every(key => !currentFeedback[key] || currentFeedback[key] === 'balanced');
+            if (stillBalanced) {
+                suggestionDiv.classList.add('hidden');
+            }
+            suggestionHideTimers.delete(index);
+        }, 3000);
+
+        suggestionHideTimers.set(index, hideTimer);
         return;
     }
 
