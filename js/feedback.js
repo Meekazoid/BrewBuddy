@@ -7,6 +7,62 @@ import { coffees, saveCoffeesAndSync, sanitizeHTML } from './state.js';
 import { getBrewRecommendations } from './brew-engine.js';
 
 const suggestionHideTimers = new Map();
+let activeHistoryCoffeeRef = null;
+
+function showDripmateConfirmModal({ modalId, confirmBtnId, cancelBtnId, closeBtnId, fallbackMessage }) {
+    const modal = document.getElementById(modalId);
+    const confirmBtn = document.getElementById(confirmBtnId);
+    const cancelBtn = document.getElementById(cancelBtnId);
+    const closeBtn = document.getElementById(closeBtnId);
+
+    if (!modal || !confirmBtn || !cancelBtn || !closeBtn) {
+        return Promise.resolve(window.confirm(fallbackMessage));
+    }
+
+    modal.classList.add('active');
+
+    return new Promise(resolve => {
+        let resolved = false;
+
+        const cleanup = (result) => {
+            if (resolved) return;
+            resolved = true;
+            modal.classList.remove('active');
+            confirmBtn.removeEventListener('click', onConfirm);
+            cancelBtn.removeEventListener('click', onCancel);
+            closeBtn.removeEventListener('click', onCancel);
+            modal.removeEventListener('click', onBackdrop);
+            resolve(result);
+        };
+
+        const onConfirm = () => cleanup(true);
+        const onCancel = () => cleanup(false);
+        const onBackdrop = (e) => {
+            if (e.target === modal) onCancel();
+        };
+
+        confirmBtn.addEventListener('click', onConfirm);
+        cancelBtn.addEventListener('click', onCancel);
+        closeBtn.addEventListener('click', onCancel);
+        modal.addEventListener('click', onBackdrop);
+    });
+}
+
+
+function resolveActiveHistoryCoffeeIndex() {
+    if (!activeHistoryCoffeeRef) return -1;
+
+    if (activeHistoryCoffeeRef.id) {
+        const idMatchIndex = coffees.findIndex(c => c && c.id === activeHistoryCoffeeRef.id);
+        if (idMatchIndex >= 0) return idMatchIndex;
+    }
+
+    if (Number.isInteger(activeHistoryCoffeeRef.index) && activeHistoryCoffeeRef.index >= 0 && activeHistoryCoffeeRef.index < coffees.length) {
+        return activeHistoryCoffeeRef.index;
+    }
+
+    return -1;
+}
 
 function clearSuggestionHideTimer(index) {
     const existing = suggestionHideTimers.get(index);
@@ -277,6 +333,8 @@ export function openFeedbackHistory(index) {
 
     if (!modal || !titleEl || !listEl || !emptyEl || !coffee) return;
 
+    activeHistoryCoffeeRef = { id: coffee?.id || null, index };
+
     titleEl.textContent = `Adjustment History · ${coffee.name || 'Coffee'}`;
 
     const history = Array.isArray(coffee.feedbackHistory) ? coffee.feedbackHistory : [];
@@ -305,6 +363,35 @@ export function openFeedbackHistory(index) {
 export function closeFeedbackHistory() {
     const modal = document.getElementById('feedbackHistoryModal');
     if (modal) modal.classList.remove('active');
+    activeHistoryCoffeeRef = null;
+}
+
+export async function deleteFeedbackHistory() {
+    const coffeeIndex = resolveActiveHistoryCoffeeIndex();
+    if (coffeeIndex < 0) {
+        closeFeedbackHistory();
+        return;
+    }
+
+    const coffee = coffees[coffeeIndex];
+    if (!coffee) return;
+
+    const historyLength = Array.isArray(coffee.feedbackHistory) ? coffee.feedbackHistory.length : 0;
+    if (historyLength === 0) return;
+
+    const confirmed = await showDripmateConfirmModal({
+        modalId: 'deleteHistoryConfirmModal',
+        confirmBtnId: 'confirmDeleteHistoryBtn',
+        cancelBtnId: 'cancelDeleteHistoryBtn',
+        closeBtnId: 'closeDeleteHistoryBtn',
+        fallbackMessage: "Delete this coffee's adjustment timeline? This cannot be undone. Current settings will stay the same."
+    });
+
+    if (!confirmed) return;
+
+    coffee.feedbackHistory = [];
+    await saveCoffeesAndSync();
+    openFeedbackHistory(coffeeIndex);
 }
 
 // Manual adjustment functions
@@ -360,7 +447,24 @@ export function adjustTempManual(index, direction) {
     saveCoffeesAndSync();
 }
 
-export function resetCoffeeAdjustments(index) {
+export async function resetCoffeeAdjustments(index) {
+    const coffee = coffees[index];
+    if (!coffee) return;
+
+    const confirmed = await showDripmateConfirmModal({
+        modalId: 'resetAdjustmentsConfirmModal',
+        confirmBtnId: 'confirmResetAdjustmentsBtn',
+        cancelBtnId: 'cancelResetAdjustmentsBtn',
+        closeBtnId: 'closeResetAdjustmentsBtn',
+        fallbackMessage: "Reset this coffee's tuning and restore recommended values?"
+    });
+
+    if (!confirmed) return;
+
+    await performResetCoffeeAdjustments(index);
+}
+
+async function performResetCoffeeAdjustments(index) {
     const coffee = coffees[index];
     const before = getBrewRecommendations(coffee);
 
@@ -407,7 +511,7 @@ export function resetCoffeeAdjustments(index) {
         suggestionEl.classList.add('hidden');
     }
 
-    saveCoffeesAndSync();
+    await saveCoffeesAndSync();
 }
 
 export function getInitialBrewValues(coffee) {
