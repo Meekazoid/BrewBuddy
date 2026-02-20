@@ -105,7 +105,7 @@ header {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 8px;
 }
 
 .header-logo {
@@ -1167,19 +1167,19 @@ body.light-mode .water-hardness-badge {
 .param-adjust {
     display: flex;
     flex-direction: row;
-    gap: 4px;
+    gap: 8px;
 }
 
 .adjust-btn {
-    width: 24px;
-    height: 24px;
+    width: 29px;
+    height: 29px;
     padding: 0;
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 700;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1189,8 +1189,8 @@ body.light-mode .water-hardness-badge {
 }
 
 .adjust-btn:hover {
-    background: var(--accent);
-    color: white;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
     border-color: var(--accent);
 }
 
@@ -2255,9 +2255,9 @@ body.light-mode .onboarding-icon {
     }
 
     .adjust-btn {
-        width: 22px;
-        height: 22px;
-        font-size: 0.72rem;
+        width: 26px;
+        height: 26px;
+        font-size: 0.75rem;
     }
 
     .timer-display {
@@ -2542,6 +2542,32 @@ body.light-mode .onboarding-icon {
     font-weight: 500;
     color: var(--text-secondary);
     margin-bottom: 6px;
+}
+
+
+.compost-confirm-modal-content {
+    max-width: 440px;
+}
+
+.compost-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.compost-confirm-actions button {
+    width: auto;
+}
+
+.compost-confirm-btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.compost-confirm-btn-secondary:hover {
+    background: color-mix(in srgb, var(--bg-card) 78%, var(--accent) 22%);
+    color: var(--text-primary);
 }
 
 /* ==========================================
