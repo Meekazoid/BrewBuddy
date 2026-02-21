@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>drip·mate — Zugang anfordern</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg:      #000000;
+            --card:    #0d0d0d;
+            --border:  #222222;
+            --accent:  #d4a574;
+            --accent2: #c09563;
+            --text:    #ffffff;
+            --muted:   #666666;
+            --success: #4ade80;
+            --error:   #f87171;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Sora', sans-serif;
+            font-weight: 300;
+            min-height: 100vh;
+        }
+
+        /* ── Layout ── */
+        .page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* ── Brand ── */
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .brand h1 {
+            font-size: 2rem;
+            font-weight: 200;
+            letter-spacing: 0.15em;
+            line-height: 1;
+        }
+
+        .brand h1 span {
+            color: var(--accent);
+        }
+
+        .brand p {
+            font-size: 0.75rem;
+            color: var(--muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        /* ── Form box ── */
+        .form-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-box h2 {
+            font-size: 1rem;
+            font-weight: 300;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .form-box h2 strong {
+            font-weight: 400;
+            color: var(--accent);
+        }
+
+        /* Input */
+        .input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-wrap label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+        }
+
+        .input-wrap input {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 300;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--accent);
+        }
+
+        .input-wrap input::placeholder {
+            color: #333;
+        }
+
+        /* Button */
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 24px;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s, transform 0.1s, opacity 0.2s;
+            letter-spacing: 0.03em;
+        }
+
+        .btn:hover:not(:disabled) { background: var(--accent2); }
+        .btn:active:not(:disabled) { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ── States ── */
+
+        /* Loading */
+        .btn .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0,0,0,0.3);
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Success screen */
+        #success-screen {
+            display: none;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .success-box {
+            background: var(--card);
+            border: 1px solid #1a3a1a;
+            border-radius: 20px;
+            padding: 36px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .success-box h2 {
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--text);
+        }
+
+        .success-box p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .success-box p strong {
+            color: var(--text);
+            font-weight: 400;
+        }
+
+        /* Error message */
+        .error-msg {
+            display: none;
+            background: rgba(248, 113, 113, 0.08);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 0.83rem;
+            color: var(--error);
+            line-height: 1.5;
+        }
+
+        /* Not whitelisted */
+        .not-invited {
+            display: none;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 32px;
+            text-align: center;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .not-invited-icon {
+            font-size: 2rem;
+        }
+
+        .not-invited h2 {
+            font-size: 1rem;
+            font-weight: 300;
+            color: var(--text);
+        }
+
+        .not-invited p {
+            font-size: 0.82rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .not-invited a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            font-size: 0.7rem;
+            color: #333;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="card">
+
+        <!-- Brand -->
+        <div class="brand">
+            <h1>drip<span>·</span>mate</h1>
+            <p>Beta-Zugang</p>
+        </div>
+
+        <!-- ── Register Form ── -->
+        <div id="form-screen">
+            <div class="form-box">
+                <h2>Gib deine E-Mail ein um deinen <strong>Zugangs-Token</strong> zu erhalten.</h2>
+
+                <div class="input-wrap">
+                    <label>E-Mail</label>
+                    <input type="email" id="email-input" placeholder="hallo@roestery.de" autocomplete="email">
+                </div>
+
+                <div class="error-msg" id="error-msg"></div>
+
+                <button class="btn" id="submit-btn" onclick="submitEmail()">
+                    Token anfordern
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Success ── -->
+        <div id="success-screen">
+            <div class="success-box">
+                <div class="success-icon">☕</div>
+                <h2>Token unterwegs!</h2>
+                <p>
+                    Wir haben deinen Zugangs-Token an<br>
+                    <strong id="success-email"></strong><br>
+                    gesendet. Schau in dein Postfach.
+                </p>
+                <p style="font-size:0.75rem;color:#444;">
+                    Nicht angekommen? Schau im Spam-Ordner nach<br>oder schreib uns.
+                </p>
+            </div>
+        </div>
+
+        <!-- ── Not Invited ── -->
+        <div class="not-invited" id="not-invited-screen">
+            <div class="not-invited-icon">🔒</div>
+            <h2>Nur auf Einladung</h2>
+            <p>
+                dripmate ist aktuell nur für ausgewählte<br>
+                Röstereien verfügbar.<br><br>
+                Interesse? Schreib uns unter<br>
+                <a href="mailto:hello@dripmate.app">hello@dripmate.app</a>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">drip·mate · Precision meets Ritual.</div>
+
+    </div>
+</div>
+
+<script>
+    const BACKEND_URL = 'https://dripmate-backend-production.up.railway.app';
+
+    async function submitEmail() {
+        const email = document.getElementById('email-input').value.trim();
+        const btn   = document.getElementById('submit-btn');
+        const errEl = document.getElementById('error-msg');
+
+        // Validierung
+        if (!email || !email.includes('@')) {
+            showError('Bitte eine gültige E-Mail eingeben.');
+            return;
+        }
+
+        // Loading
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Wird gesendet…';
+        errEl.style.display = 'none';
+
+        try {
+            const res  = await fetch(`${BACKEND_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                // Erfolg
+                document.getElementById('success-email').textContent = email;
+                document.getElementById('form-screen').style.display   = 'none';
+                document.getElementById('success-screen').style.display = 'flex';
+                return;
+            }
+
+            if (data.error === 'not_whitelisted') {
+                // Nicht eingeladen
+                document.getElementById('form-screen').style.display       = 'none';
+                document.getElementById('not-invited-screen').style.display = 'flex';
+                return;
+            }
+
+            showError('Ein Fehler ist aufgetreten. Bitte versuche es nochmal.');
+
+        } catch (err) {
+            showError('Keine Verbindung zum Server. Bitte versuche es später nochmal.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Token anfordern';
+        }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('error-msg');
+        el.textContent    = msg;
+        el.style.display  = 'block';
+    }
+
+    // Enter-Taste
+    document.getElementById('email-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') submitEmail();
+    });
+</script>
+</body>
+</html>
